@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.Extensions.Primitives;
 using System.Text.Unicode;
+using Microsoft.ApplicationInsights.DataContracts;
 
 
 namespace woodgrove_portal.Controllers
@@ -70,6 +71,15 @@ namespace woodgrove_portal.Controllers
                 {
                     Response.Headers.Add(header.Key, header.Value.ToArray());
                 }
+
+                // Add application insights page telemetry
+                PageViewTelemetry pageView = new PageViewTelemetry("Proxy");
+                pageView.Properties.Add("Request_URL", $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+                pageView.Properties.Add("Target_URL", targetURL);
+                pageView.Properties.Add("Request_Method", Request.Method);
+                pageView.Properties.Add("Request_Headers", JsonSerializer.Serialize(Request.Headers));
+                pageView.Properties.Add("Response_Headers", JsonSerializer.Serialize(response.Headers));
+                //pageView.Properties.Add("Response_Body", responseBody);
 
                 //Response the content
                 return new ContentResult
