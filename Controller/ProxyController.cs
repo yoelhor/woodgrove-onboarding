@@ -81,6 +81,8 @@ namespace woodgrove_portal.Controllers
                 pageView.Properties.Add("Response_Headers", JsonSerializer.Serialize(response.Headers));
                 //pageView.Properties.Add("Response_Body", responseBody);
 
+                this._telemetry.TrackPageView(pageView);
+
                 //Response the content
                 return new ContentResult
                 {
