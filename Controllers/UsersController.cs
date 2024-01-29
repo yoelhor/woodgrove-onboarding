@@ -95,7 +95,7 @@ public class UsersController : ControllerBase
     {
         // TBD:
         // 1. Input validation of the UPN format
-        
+
         Random r = new Random();
 
         var requestBody = new User
@@ -116,7 +116,7 @@ public class UsersController : ControllerBase
             {
                 ForceChangePasswordNextSignIn = true,
                 // Generate a random password
-                Password = Guid.NewGuid().ToString() + Guid.NewGuid().ToString(),
+                Password = Guid.NewGuid().ToString(),
             },
         };
 
