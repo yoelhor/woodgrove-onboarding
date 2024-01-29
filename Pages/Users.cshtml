@@ -1,0 +1,60 @@
+﻿@page
+@model woodgrove_portal.Pages.UsersModel
+@{
+
+    <table class="table table-striped" id="users">
+        <thead>
+            <tr>
+                <th>Display name</th>
+                <th>User principal name </th>
+                <th>Job title</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <br>
+    <a href="#" id="nextPage">Load more</a>
+}
+
+
+@section Scripts
+{
+    <script>
+        function getUsers(nextPage)
+        {
+            var apiUrl  = "/users/list";
+            if (nextPage != null)
+            {
+                apiUrl = apiUrl + '?nextPage=' + nextPage;
+            }
+
+            $.ajax({
+                url: apiUrl,
+                success: function (result) {
+
+                    result.users.forEach((element) => {
+                        $('#users > tbody:last-child').append('<tr><td>' + element.displayName + '</td><td>' + element.upn + '</td><td>' + element.jobTitle + '</td><td>' + element.email + '</td></tr>');
+                    });
+
+                    // Check if there is a next page
+                    if (result.nextPage)
+                    {
+                        $("#nextPage").attr('onclick', 'getUsers("' + result.nextPage + '"); return false;');
+                        $("#nextPage").show();
+                    }
+                    else
+                    {
+                        $("#nextPage").hide();
+                    }
+                }
+            });
+        }
+
+        getUsers();
+
+    </script>
+
+}

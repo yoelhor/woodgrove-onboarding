@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Web;
 using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -29,9 +30,55 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IActionResult> UsersListAsync()
+    public async Task<IActionResult> UsersListAsync(string nextPage = null)
     {
-        var users = await _graphServiceClient.Users.GetAsync();
-        return Ok(users);
+        UserCollectionResponse? users = null;
+
+        if (string.IsNullOrEmpty(nextPage))
+        {
+            // First page of the list
+            users = await _graphServiceClient.Users.GetAsync(requestConfiguration =>
+                        {
+                            requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
+                            requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
+                            requestConfiguration.QueryParameters.Top = 10;
+                        });
+        }
+        else
+        {
+            // Next or previous pages
+            users = await _graphServiceClient.Users.WithUrl(nextPage).GetAsync();
+        }
+
+
+        WgUsers rv = new WgUsers();
+        foreach (var user in users.Value)
+        {
+            rv.Users.Add(new WgUser()
+            {
+                Id = user.Id!,
+                UPN = user.UserPrincipalName!,
+                DisplayName = user.DisplayName ?? "",
+                GivenName = user.GivenName ?? "",
+                Surname = user.Surname ?? "",
+                Department = user.Department ?? "",
+                EmployeeId = user.EmployeeId ?? "",
+                EmployeeHireDate = "" ?? "",
+                Email = user.Mail ?? "",
+                jobTitle = user.JobTitle ?? ""
+            });
+        }
+        
+        // Get the next page URL
+        if (!string.IsNullOrEmpty(users.OdataNextLink))
+        {
+            rv.NextPage = HttpUtility.UrlEncode(users.OdataNextLink!);
+        }
+        else
+        {
+            rv.NextPage = "";
+        }
+
+        return Ok(rv);
     }
 }
