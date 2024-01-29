@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // The following line enables Application Insights telemetry collection.
-//builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry();
 
 // Add authentication for the multi-tenant app and access Microsoft Graph as the user
 // https://learn.microsoft.com/entra/identity-platform/multi-service-web-app-access-microsoft-graph-as-user
@@ -23,6 +23,14 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI(); ;
 
+// Add session service https://learn.microsoft.com/aspnet/core/fundamentals/app-state
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 app.UseAuthentication();
@@ -36,6 +44,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
