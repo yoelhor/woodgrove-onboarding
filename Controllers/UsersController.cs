@@ -76,7 +76,7 @@ public class UsersController : ControllerBase
                 jobTitle = user.JobTitle ?? ""
             });
         }
-        
+
         // Get the next page URL
         if (!string.IsNullOrEmpty(users.OdataNextLink))
         {
@@ -89,4 +89,54 @@ public class UsersController : ControllerBase
 
         return Ok(rv);
     }
+
+    [HttpPost("create")]
+    public async Task<IActionResult> UsersCreateAsync([FromForm] WgNewUser newUser)
+    {
+        // TBD:
+        // 1. Input validation of the UPN format
+        
+        Random r = new Random();
+
+        var requestBody = new User
+        {
+            AccountEnabled = false,
+            DisplayName = newUser.DisplayName,
+            GivenName = newUser.GivenName,
+            Surname = newUser.Surname,
+            Department = newUser.Department,
+            EmployeeType = "Employee",
+            EmployeeId = r.NextInt64(1234567, 9976654).ToString(),
+            EmployeeHireDate = DateTime.UtcNow,
+            JobTitle = newUser.JobTitle,
+            Mail = newUser.Email,
+            MailNickname = newUser.UPN.Split("@")[0],
+            UserPrincipalName = newUser.UPN,
+            PasswordProfile = new PasswordProfile
+            {
+                ForceChangePasswordNextSignIn = true,
+                // Generate a random password
+                Password = Guid.NewGuid().ToString() + Guid.NewGuid().ToString(),
+            },
+        };
+
+
+        try
+        {
+            // https://learn.microsoft.com/graph/api/user-post-users
+            var result = await _graphServiceClient.Users.PostAsync(requestBody);
+
+            // Return the result
+            return Ok(result);
+        }
+        catch (System.Exception ex)
+        {
+
+            return Ok(ex.Message);
+        }
+
+
+
+    }
+
 }

@@ -8,7 +8,12 @@
             <input type="text" class="form-control" maxlength="15" placeholder="" id="inputSearch" aria-label="Search">
         </div>
         <div class="col">
-            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val() )">Search</button>
+            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val() )"><i
+                    class="bi bi-search"></i> &nbsp;Search</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="submit" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#newUserModal"><i
+                    class="bi bi-person-plus"></i> &nbsp;
+                Add employee</button>
         </div>
     </div>
 
@@ -30,6 +35,66 @@
     </div>
     <br>
     <a href="#" id="nextPage" style="display: none;">Load more</a>
+
+
+    <div class="modal" tabindex="-1" id="newUserModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                        <label for="inputUPN" class="col-sm-2 col-form-label">Principal name (UPN) *</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputUPN" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputEmail" class="col-sm-2 col-form-label">Email *</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" id="inputEmail" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputDisplayName" class="col-sm-2 col-form-label">Display name *</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputDisplayName" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputGivenName" class="col-sm-2 col-form-label">Given name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputGivenName">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputSurname" class="col-sm-2 col-form-label">Surname</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputSurname">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputDepartment" class="col-sm-2 col-form-label">Department</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputDepartment">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputjobTitle" class="col-sm-2 col-form-label">Job title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputjobTitle">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewEmployee()">Add new employee</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 
@@ -76,6 +141,30 @@
                     $("#spinner").hide();
                 }
             });
+        }
+
+        function addNewEmployee() {
+
+            // POST data
+            var payload = {
+                UPN: $("#inputUPN").val(),
+                Email: $("#inputEmail").val(),
+                DisplayName: $("#inputDisplayName").val(),
+                GivenName: $("#inputGivenName").val(),
+                Surname: $("#inputSurname").val(),
+                JobTitle: $("#inputJobTitle").val(),
+                Department: $("#inputDepartment").val()
+            };
+
+            // Submit the request
+            $.post("/users/create", payload, function (data) {
+                console.log(data);
+            });
+
+            // Hide the modal
+            var myModalEl = document.getElementById('newUserModal')
+            var modal = bootstrap.Modal.getInstance(myModalEl)
+            modal.hide();
         }
 
         getUsers();
