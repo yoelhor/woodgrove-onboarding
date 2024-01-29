@@ -30,7 +30,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IActionResult> UsersListAsync(string nextPage = null)
+    public async Task<IActionResult> UsersListAsync(string search = null, string nextPage = null)
     {
         UserCollectionResponse? users = null;
 
@@ -40,8 +40,16 @@ public class UsersController : ControllerBase
             users = await _graphServiceClient.Users.GetAsync(requestConfiguration =>
                         {
                             requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
-                            requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
                             requestConfiguration.QueryParameters.Top = 10;
+
+                            if (!string.IsNullOrEmpty(search) && search.Length <= 15)
+                            {
+                                requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                            }
+                            else
+                            {
+                                requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
+                            }
                         });
         }
         else

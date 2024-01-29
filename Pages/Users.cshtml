@@ -1,8 +1,18 @@
 ﻿@page
 @model woodgrove_portal.Pages.UsersModel
 @{
+    <h1>Users</h1>
 
-    <table class="table table-striped" id="users">
+    <div class="row" style="margin-top: 50px;">
+        <div class="col-md-2">
+            <input type="text" class="form-control" maxlength="15" placeholder="" id="inputSearch" aria-label="Search">
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val() )">Search</button>
+        </div>
+    </div>
+
+    <table class="table table-striped" id="users" style="margin-top: 20px;">
         <thead>
             <tr>
                 <th>Display name</th>
@@ -15,21 +25,35 @@
 
         </tbody>
     </table>
+    <div class="spinner-border text-secondary" role="status" id="spinner">
+        <span class="visually-hidden">Loading...</span>
+    </div>
     <br>
-    <a href="#" id="nextPage">Load more</a>
+    <a href="#" id="nextPage" style="display: none;">Load more</a>
 }
 
 
 @section Scripts
 {
     <script>
-        function getUsers(nextPage)
-        {
-            var apiUrl  = "/users/list";
-            if (nextPage != null)
-            {
+        function getUsers(nextPage, search) {
+
+            var apiUrl = "/users/list";
+
+            if (nextPage != null) {
+                // Load more users
                 apiUrl = apiUrl + '?nextPage=' + nextPage;
             }
+            else if (search != null) {
+                // Search users
+                apiUrl = apiUrl + '?search=' + search;
+
+                // Clear the table 
+                $("#users tr").remove();
+            }
+
+            // Show the spinner
+            $("#spinner").show();
 
             $.ajax({
                 url: apiUrl,
@@ -40,15 +64,16 @@
                     });
 
                     // Check if there is a next page
-                    if (result.nextPage)
-                    {
+                    if (result.nextPage) {
                         $("#nextPage").attr('onclick', 'getUsers("' + result.nextPage + '"); return false;');
                         $("#nextPage").show();
                     }
-                    else
-                    {
+                    else {
                         $("#nextPage").hide();
                     }
+
+                    // Hide the spinner
+                    $("#spinner").hide();
                 }
             });
         }
