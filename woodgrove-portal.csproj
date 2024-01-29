@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Communication.Email" Version="1.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Microsoft.Identity.Web.Diagnostics" Version="2.16.1" />
     <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="2.16.1" />

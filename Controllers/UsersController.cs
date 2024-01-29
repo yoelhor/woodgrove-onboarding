@@ -3,12 +3,15 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Web;
+using Azure;
+using Azure.Communication.Email;
 using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
+using woodgrove_portal.Helpers;
 
 namespace woodgrove_portal.Controllers;
 
@@ -30,7 +33,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IActionResult> UsersListAsync(string search = null, string nextPage = null)
+    public async Task<IActionResult> UsersListAsync(string search = null, string searchBy = null, string nextPage = null)
     {
         UserCollectionResponse? users = null;
 
@@ -44,7 +47,11 @@ public class UsersController : ControllerBase
 
                             if (!string.IsNullOrEmpty(search) && search.Length <= 15)
                             {
-                                requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                                if (string.IsNullOrEmpty(searchBy) || (new string[] { "mail", "department", "jobTitle" }.Contains(searchBy) == false ))
+                                    requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                                else
+                                    requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
+                                
                             }
                             else
                             {
@@ -120,11 +127,13 @@ public class UsersController : ControllerBase
             },
         };
 
-
         try
         {
             // https://learn.microsoft.com/graph/api/user-post-users
             var result = await _graphServiceClient.Users.PostAsync(requestBody);
+
+            // Send invite email
+            await Invite.SendInviteAsync(_configuration, this.Request, newUser.Email);
 
             // Return the result
             return Ok(result);
@@ -134,9 +143,6 @@ public class UsersController : ControllerBase
 
             return Ok(ex.Message);
         }
-
-
-
     }
 
 }

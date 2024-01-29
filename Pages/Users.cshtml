@@ -2,16 +2,25 @@
 @model woodgrove_portal.Pages.UsersModel
 @{
     <h1>Users</h1>
-
+    <h2>@this.Request.PathBase</h2>
     <div class="row" style="margin-top: 50px;">
+
+        <div class="col-md-2">
+            <select class="form-select" aria-label="By" id="inputSearchBy">
+                <option value="name" selected>Name</option>
+                <option value="mail">Email</option>
+                <option value="department">Department</option>
+                <option value="jobTitle">Job title</option>
+            </select>
+        </div>
         <div class="col-md-2">
             <input type="text" class="form-control" maxlength="15" placeholder="" id="inputSearch" aria-label="Search">
         </div>
         <div class="col">
-            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val() )"><i
+            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val(), $('#inputSearchBy').val())"><i
                     class="bi bi-search"></i> &nbsp;Search</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <button type="submit" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#newUserModal"><i
+            <button type="submit" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#newUserModal"><i
                     class="bi bi-person-plus"></i> &nbsp;
                 Add employee</button>
         </div>
@@ -101,7 +110,7 @@
 @section Scripts
 {
     <script>
-        function getUsers(nextPage, search) {
+        function getUsers(nextPage, search, searchBy) {
 
             var apiUrl = "/users/list";
 
@@ -113,6 +122,8 @@
                 // Search users
                 apiUrl = apiUrl + '?search=' + search;
 
+                if (searchBy !=  null)
+                    apiUrl += '&searchBy=' + searchBy;
                 // Clear the table 
                 $("#users tr").remove();
             }
