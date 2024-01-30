@@ -179,6 +179,28 @@ public class UsersController : ControllerBase
         }
     }
 
+    [HttpGet("/api/users/invite")]
+    public async Task<IActionResult> InviteUserAsync(string oid)
+    {
+        try
+        {
+            User user = await _graphServiceClient.Users[oid].GetAsync();
+
+            if (user != null)
+            {
+                // Send invite email
+                await Invite.SendInviteAsync(_configuration, this.Request, user.Mail);
+            }
+
+            // Return the result
+            return Ok();
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPatch("/api/users")]
     public async Task<IActionResult> UpdateUserAsync([FromForm] WgNewUser newUser)
     {

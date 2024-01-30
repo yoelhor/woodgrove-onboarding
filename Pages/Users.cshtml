@@ -202,6 +202,12 @@
                         <span class="sr-only">Update</span>
                     </button>
 
+                    <button type="button" class="btn btn-primary" id="inviteEmployeeButton" onclick="inviteEmployee()">
+                        <span class="spinner-border spinner-border-sm" id="inviteEmployeeSpinner" role="status"
+                            aria-hidden="true"></span>
+                        <span class="sr-only">Send invite</span>
+                    </button>
+
                     <button type="button" class="btn btn-danger" id="updateDeleteEmployeeButton"
                         onclick="deleteEmployeeApproval()">Delete</button>
                 </div>
@@ -360,8 +366,7 @@
 
             // Show the spinner and disable the buttons
             $('#updateEmployeeSpinner').show();
-            $('#updateEmployeeButton').attr("disabled", true);
-            $('#updateDeleteEmployeeButton').attr("disabled", true);
+            disableDetailsButtons(true);
 
             // POST data
             var payload = {
@@ -392,9 +397,8 @@
                 $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
 
                 $('#updateEmployeeSpinner').hide();
-                $('#updateEmployeeButton').attr("disabled", false);
-                $('#updateDeleteEmployeeButton').attr("disabled", false);
 
+                disableDetailsButtons(false);
             });;
         }
 
@@ -429,6 +433,36 @@
             });
         }
 
+        function inviteEmployee() {
+
+            $('#inviteEmployeeSpinner').show();
+            disableDetailsButtons(true);
+
+            $.ajax({
+                url: "/api/users/invite?oid=" + $("#detailsId").val(),
+                success: function (result) {
+                    $('#inviteEmployeeSpinner').hide();
+
+                    disableDetailsButtons(false);
+
+                }
+            }).fail(function (response) {
+                console.log("Invite error")
+                console.log(response)
+                $('#updateEmployeeAlert').show();
+                $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
+
+                $('#inviteEmployeeSpinner').hide();
+                disableDetailsButtons(false);
+
+            });
+        }
+
+        function disableDetailsButtons(value) {
+            $('#updateEmployeeButton').attr("disabled", value);
+            $('#updateDeleteEmployeeButton').attr("disabled", value);
+            $('#inviteEmployeeButton').attr("disabled", value);
+        }
 
         var newUserModal, userDetailsModal, deleteUserModal;
 
@@ -463,9 +497,10 @@
             $('#userDetailsModal').on('show.bs.modal', function (e) {
                 // Hide the update employee spinner and activate the create button
                 $('#updateEmployeeSpinner').hide();
+                $('#inviteEmployeeSpinner').hide();
                 $('#updateEmployeeAlert').hide();
-                $('#updateEmployeeButton').attr("disabled", false);
-                $('#updateDeleteEmployeeButton').attr("disabled", false);
+                
+                disableDetailsButtons(false);
             })
         })
 
