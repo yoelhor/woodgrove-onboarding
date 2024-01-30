@@ -23,6 +23,7 @@ public class WgUser
     public string jobTitle { get; set; }
     public string Email { get; set; }
     public string UPN { get; set; }
+    public string ManagerUpn { get; set; }
 }
 
 

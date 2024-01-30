@@ -170,6 +170,24 @@
                             <input type="text" readonly class="form-control-plaintext" id="detailsId">
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <label for="detailsEmployeeId" class="col-sm-2 col-form-label">Employee ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="detailsEmployeeId">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsEmployeeHireDate" class="col-sm-2 col-form-label">Hire date</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="detailsEmployeeHireDate">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsManager" class="col-sm-2 col-form-label">Manager</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="detailsManager">
+                        </div>
+                    </div>
 
                     <div class="alert alert-danger" id="updateEmployeeAlert">
                         <strong>Error!</strong> <span id="updateEmployeeAlertMessage"></span>
@@ -311,7 +329,7 @@
             $.ajax({
                 url: "/api/users?oid=" + oid,
                 success: function (result) {
-
+                    console.log(result);
                     if (result != null && result.users != null && result.users.length > 0) {
 
                         $("#detailsUPN").val(result.users[0].upn);
@@ -322,6 +340,11 @@
                         $("#detailsJobTitle").val(result.users[0].jobTitle);
                         $("#detailsDepartment").val(result.users[0].department);
                         $("#detailsId").val(result.users[0].id);
+                        $("#detailsManager").val(result.users[0].managerUpn);
+                        $("#detailsEmployeeHireDate").val(result.users[0].employeeHireDate);
+                        $("#detailsEmployeeId").val(result.users[0].employeeId);
+
+                        // Title for the delete account
                         $("#deleteAccountName").text(result.users[0].displayName);
 
                         // employeeHireDate

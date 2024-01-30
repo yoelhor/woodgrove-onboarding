@@ -49,6 +49,7 @@ public class UsersController : ControllerBase
                     {
                         // Get user by user object ID. Note, you can also get a user without search. This approach is for code simplicity.
                         requestConfiguration.QueryParameters.Filter = $"Id eq '{oid}'";
+                        requestConfiguration.QueryParameters.Expand = new string[] { "Manager" };
                     }
                     else if (!string.IsNullOrEmpty(search) && search.Length <= 15)
                     {
@@ -77,7 +78,7 @@ public class UsersController : ControllerBase
         WgUsers rv = new WgUsers();
         foreach (var user in users.Value)
         {
-            rv.Users.Add(new WgUser()
+            WgUser wgUser = new WgUser()
             {
                 Id = user.Id!,
                 UPN = user.UserPrincipalName!,
@@ -86,10 +87,23 @@ public class UsersController : ControllerBase
                 Surname = user.Surname ?? "",
                 Department = user.Department ?? "",
                 EmployeeId = user.EmployeeId ?? "",
-                EmployeeHireDate = "" ?? "",
+                EmployeeHireDate = user.EmployeeHireDate != null ? user.EmployeeHireDate.Value.ToString("d") : "",
                 Email = user.Mail ?? "",
                 jobTitle = user.JobTitle ?? ""
-            });
+            };
+
+            // Get the special diet from the extension attributes
+            if (user.Manager != null)
+            {
+                User manager = await _graphServiceClient.Users[user.Manager.Id].GetAsync();
+                
+                if (manager != null)
+                {
+                    wgUser.ManagerUpn = manager.UserPrincipalName!;
+                }
+            }
+
+            rv.Users.Add(wgUser);
         }
 
         // Get the next page URL
