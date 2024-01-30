@@ -396,8 +396,6 @@
                 $('#updateEmployeeAlert').show();
                 $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
 
-                $('#updateEmployeeSpinner').hide();
-
                 disableDetailsButtons(false);
             });;
         }
@@ -441,7 +439,6 @@
             $.ajax({
                 url: "/api/users/invite?oid=" + $("#detailsId").val(),
                 success: function (result) {
-                    $('#inviteEmployeeSpinner').hide();
 
                     disableDetailsButtons(false);
 
@@ -449,10 +446,10 @@
             }).fail(function (response) {
                 console.log("Invite error")
                 console.log(response)
+
                 $('#updateEmployeeAlert').show();
                 $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
 
-                $('#inviteEmployeeSpinner').hide();
                 disableDetailsButtons(false);
 
             });
@@ -462,6 +459,12 @@
             $('#updateEmployeeButton').attr("disabled", value);
             $('#updateDeleteEmployeeButton').attr("disabled", value);
             $('#inviteEmployeeButton').attr("disabled", value);
+
+            // If the buttons are enabled, hide the spinners
+            if (value == false) {
+                $('#updateEmployeeSpinner').hide();
+                $('#inviteEmployeeSpinner').hide();
+            }
         }
 
         var newUserModal, userDetailsModal, deleteUserModal;
@@ -495,12 +498,10 @@
             })
 
             $('#userDetailsModal').on('show.bs.modal', function (e) {
+
                 // Hide the update employee spinner and activate the create button
-                $('#updateEmployeeSpinner').hide();
-                $('#inviteEmployeeSpinner').hide();
-                $('#updateEmployeeAlert').hide();
-                
                 disableDetailsButtons(false);
+                $('#updateEmployeeAlert').hide();
             })
         })
 
