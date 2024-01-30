@@ -17,8 +17,9 @@
             <input type="text" class="form-control" maxlength="15" placeholder="" id="inputSearch" aria-label="Search">
         </div>
         <div class="col">
-            <button type="submit" class="btn btn-light" onclick="getUsers( null, $('#inputSearch').val(), $('#inputSearchBy').val())"><i
-                    class="bi bi-search"></i> &nbsp;Search</button>
+            <button type="submit" class="btn btn-light"
+                onclick="getUsers( null, $('#inputSearch').val(), $('#inputSearchBy').val())"><i class="bi bi-search"></i>
+                &nbsp;Search</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <button type="submit" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#newUserModal"><i
                     class="bi bi-person-plus"></i> &nbsp;
@@ -55,51 +56,164 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3 row">
-                        <label for="inputUPN" class="col-sm-2 col-form-label">Principal name (UPN) *</label>
+                        <label for="newUPN" class="col-sm-2 col-form-label">Principal name (UPN) *</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputUPN" required>
+                            <input type="text" class="form-control" id="newUPN" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email *</label>
+                        <label for="newEmail" class="col-sm-2 col-form-label">Email *</label>
                         <div class="col-sm-10">
-                            <input type="email" class="form-control" id="inputEmail" required>
+                            <input type="email" class="form-control" id="newEmail" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputDisplayName" class="col-sm-2 col-form-label">Display name *</label>
+                        <label for="newDisplayName" class="col-sm-2 col-form-label">Display name *</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputDisplayName" required>
+                            <input type="text" class="form-control" id="newDisplayName" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputGivenName" class="col-sm-2 col-form-label">Given name</label>
+                        <label for="newGivenName" class="col-sm-2 col-form-label">Given name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputGivenName">
+                            <input type="text" class="form-control" id="newGivenName">
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputSurname" class="col-sm-2 col-form-label">Surname</label>
+                        <label for="newSurname" class="col-sm-2 col-form-label">Surname</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputSurname">
+                            <input type="text" class="form-control" id="newSurname">
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputDepartment" class="col-sm-2 col-form-label">Department</label>
+                        <label for="newDepartment" class="col-sm-2 col-form-label">Department</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputDepartment">
+                            <input type="text" class="form-control" id="newDepartment">
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputjobTitle" class="col-sm-2 col-form-label">Job title</label>
+                        <label for="newJobTitle" class="col-sm-2 col-form-label">Job title</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputjobTitle">
+                            <input type="text" class="form-control" id="newJobTitle">
                         </div>
+                    </div>
+
+                    <div class="alert alert-danger" id="newEmployeeAlert">
+                        <strong>Error!</strong> <span id="newEmployeeAlertMessage"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="addNewEmployee()">Add new employee</button>
+                    <button type="button" class="btn btn-primary" id="newEmployeeButton" onclick="addNewEmployee()">
+                        <span class="spinner-border spinner-border-sm" id="newEmployeeSpinner" role="status"
+                            aria-hidden="true"></span>
+                        <span class="sr-only">Add new employee</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" id="userDetailsModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Employee details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                        <label for="detailsUPN" class="col-sm-2 col-form-label">Principal name (UPN) *</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control" id="detailsUPN" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsEmail" class="col-sm-2 col-form-label">Email *</label>
+                        <div class="col-sm-10">
+                            <input type="email" readonly class="form-control" id="detailsEmail" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsDisplayName" class="col-sm-2 col-form-label">Display name *</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="detailsDisplayName" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsGivenName" class="col-sm-2 col-form-label">Given name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="detailsGivenName">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsSurname" class="col-sm-2 col-form-label">Surname</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="detailsSurname">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsDepartment" class="col-sm-2 col-form-label">Department</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="detailsDepartment">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsJobTitle" class="col-sm-2 col-form-label">Job title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="detailsJobTitle">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="detailsId" class="col-sm-2 col-form-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="detailsId">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger" id="updateEmployeeAlert">
+                        <strong>Error!</strong> <span id="updateEmployeeAlertMessage"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                    <button type="button" class="btn btn-primary" id="updateEmployeeButton" onclick="updateEmployee()">
+                        <span class="spinner-border spinner-border-sm" id="updateEmployeeSpinner" role="status"
+                            aria-hidden="true"></span>
+                        <span class="sr-only">Update</span>
+                    </button>
+
+                    <button type="button" class="btn btn-danger" id="updateDeleteEmployeeButton"
+                        onclick="deleteEmployeeApproval()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" id="deleteUserModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete employee account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the '<span id="deleteAccountName"></span>' account?
+                </div>
+                <div class="modal-footer">
+
+                    <div class="alert alert-danger" id="deleteEmployeeAlert">
+                        <strong>Error!</strong> <span id="deleteEmployeeAlertMessage"></span>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+
+                    <button type="button" class="btn btn-primary" id="deleteEmployeeButton" onclick="deleteEmployee()">
+                        <span class="spinner-border spinner-border-sm" id="deleteEmployeeSpinner" role="status"
+                            aria-hidden="true"></span>
+                        <span class="sr-only">Yes</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -112,7 +226,7 @@
     <script>
         function getUsers(nextPage, search, searchBy) {
 
-            var apiUrl = "/users/list";
+            var apiUrl = "/api/users";
 
             if (nextPage != null) {
                 // Load more users
@@ -122,7 +236,7 @@
                 // Search users
                 apiUrl = apiUrl + '?search=' + search;
 
-                if (searchBy !=  null)
+                if (searchBy != null)
                     apiUrl += '&searchBy=' + searchBy;
                 // Clear the table 
                 $("#users tr").remove();
@@ -136,7 +250,7 @@
                 success: function (result) {
 
                     result.users.forEach((element) => {
-                        $('#users > tbody:last-child').append('<tr><td>' + element.displayName + '</td><td>' + element.upn + '</td><td>' + element.jobTitle + '</td><td>' + element.email + '</td></tr>');
+                        $('#users > tbody:last-child').append('<tr><td><a href="#" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="userDetails(\'' + element.id + '\'); return false;">' + element.displayName + '</a></td><td>' + element.upn + '</td><td>' + element.jobTitle + '</td><td>' + element.email + '</td></tr>');
                     });
 
                     // Check if there is a next page
@@ -156,29 +270,181 @@
 
         function addNewEmployee() {
 
+            // Show the spinner and disable the buttons
+            $('#newEmployeeSpinner').show();
+            $('#newEmployeeButton').attr("disabled", true);
+
             // POST data
             var payload = {
-                UPN: $("#inputUPN").val(),
-                Email: $("#inputEmail").val(),
-                DisplayName: $("#inputDisplayName").val(),
-                GivenName: $("#inputGivenName").val(),
-                Surname: $("#inputSurname").val(),
-                JobTitle: $("#inputJobTitle").val(),
-                Department: $("#inputDepartment").val()
+                UPN: $("#newUPN").val(),
+                Email: $("#newEmail").val(),
+                DisplayName: $("#newDisplayName").val(),
+                GivenName: $("#newGivenName").val(),
+                Surname: $("#newSurname").val(),
+                JobTitle: $("#newJobTitle").val(),
+                Department: $("#newDepartment").val()
             };
 
             // Submit the request
-            $.post("/users/create", payload, function (data) {
-                console.log(data);
-            });
+            $.post("/api/users", payload, function (data) {
 
-            // Hide the modal
-            var myModalEl = document.getElementById('newUserModal')
-            var modal = bootstrap.Modal.getInstance(myModalEl)
-            modal.hide();
+                // Hide the modal
+                newUserModal.hide();
+
+                // Search the users again
+                getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
+            }).fail(function (response) {
+                console.log(response)
+
+                $('#newEmployeeAlert').show();
+                $('#newEmployeeSpinner').hide();
+                $('#newEmployeeButton').attr("disabled", false);
+                $('#newEmployeeAlertMessage').text(response.responseJSON.error);
+            });
         }
 
-        getUsers();
+        function userDetails(oid) {
+
+            // Show the spinner  
+            //$("#spinner").show();
+
+            $.ajax({
+                url: "/api/users?oid=" + oid,
+                success: function (result) {
+
+                    if (result != null && result.users != null && result.users.length > 0) {
+
+                        $("#detailsUPN").val(result.users[0].upn);
+                        $("#detailsEmail").val(result.users[0].email);
+                        $("#detailsDisplayName").val(result.users[0].displayName);
+                        $("#detailsGivenName").val(result.users[0].givenName);
+                        $("#detailsSurname").val(result.users[0].surname);
+                        $("#detailsJobTitle").val(result.users[0].jobTitle);
+                        $("#detailsDepartment").val(result.users[0].department);
+                        $("#detailsId").val(result.users[0].id);
+                        $("#deleteAccountName").text(result.users[0].displayName);
+
+                        // employeeHireDate
+                        // employeeId
+                        userDetailsModal.show();
+
+                    }
+                }
+            });
+        }
+
+        function updateEmployee() {
+
+            // Show the spinner and disable the buttons
+            $('#updateEmployeeSpinner').show();
+            $('#updateEmployeeButton').attr("disabled", true);
+            $('#updateDeleteEmployeeButton').attr("disabled", true);
+
+            // POST data
+            var payload = {
+                ID: $("#detailsId").val(),
+                UPN: $("#detailsUPN").val(),
+                Email: $("#detailsEmail").val(),
+                DisplayName: $("#detailsDisplayName").val(),
+                GivenName: $("#detailsGivenName").val(),
+                Surname: $("#detailsSurname").val(),
+                JobTitle: $("#detailsJobTitle").val(),
+                Department: $("#detailsDepartment").val()
+            };
+
+            // Submit a PATCH request
+            $.ajax({
+                url: '/api/users',
+                type: 'PATCH',
+                data: payload,
+                success: function (result) {
+                    userDetailsModal.hide();
+
+                    // Search the users again
+                    getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
+                }
+            }).fail(function (response) {
+
+                $('#updateEmployeeAlert').show();
+                $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
+
+                $('#updateEmployeeSpinner').hide();
+                $('#updateEmployeeButton').attr("disabled", false);
+                $('#updateDeleteEmployeeButton').attr("disabled", false);
+
+            });;
+        }
+
+        function deleteEmployeeApproval() {
+            userDetailsModal.hide();
+            deleteUserModal.show();
+        }
+
+        function deleteEmployee() {
+
+            // Show the spinner and disable the buttons
+            $('#deleteEmployeeSpinner').show();
+            $('#deleteEmployeeButton').attr("disabled", true);
+
+            $.ajax({
+                url: "/api/users?oid=" + $("#detailsId").val(),
+                type: 'DELETE',
+                success: function (result) {
+                    deleteUserModal.hide();
+
+                    // Search the users again
+                    getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
+                }
+            }).fail(function (response) {
+
+                $('#deleteEmployeeAlert').show();
+                $('#deleteEmployeeAlertMessage').text(response.responseJSON.error);
+
+                $('#deleteEmployeeSpinner').hide();
+                $('#deleteEmployeeButton').attr("disabled", false);
+
+            });
+        }
+
+
+        var newUserModal, userDetailsModal, deleteUserModal;
+
+        $(document).ready(function () {
+
+            getUsers();
+
+            // Initiate the modals
+            var newUserModalEl = document.getElementById('newUserModal')
+            newUserModal = bootstrap.Modal.getOrCreateInstance(newUserModalEl);
+
+            var userDetailsModalEl = document.getElementById('userDetailsModal')
+            userDetailsModal = bootstrap.Modal.getOrCreateInstance(userDetailsModalEl);
+
+            var deleteUserModalEl = document.getElementById('deleteUserModal')
+            deleteUserModal = bootstrap.Modal.getOrCreateInstance(deleteUserModalEl);
+
+            $('#newUserModal').on('show.bs.modal', function (e) {
+                // Hide the new employee spinner and activate the create button
+                $('#newEmployeeSpinner').hide();
+                $('#newEmployeeAlert').hide();
+                $('#newEmployeeButton').attr("disabled", false);
+            })
+
+            $('#deleteUserModal').on('show.bs.modal', function (e) {
+                // Hide the delete employee spinner and activate the create button
+                $('#deleteEmployeeSpinner').hide();
+                $('#deleteEmployeeAlert').hide();
+                $('#deleteEmployeeButton').attr("disabled", false);
+            })
+
+            $('#userDetailsModal').on('show.bs.modal', function (e) {
+                // Hide the update employee spinner and activate the create button
+                $('#updateEmployeeSpinner').hide();
+                $('#updateEmployeeAlert').hide();
+                $('#updateEmployeeButton').attr("disabled", false);
+                $('#updateDeleteEmployeeButton').attr("disabled", false);
+            })
+        })
 
     </script>
 

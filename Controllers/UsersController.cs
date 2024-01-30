@@ -32,8 +32,8 @@ public class UsersController : ControllerBase
         _graphServiceClient = graphServiceClient;
     }
 
-    [HttpGet("list")]
-    public async Task<IActionResult> UsersListAsync(string search = null, string searchBy = null, string nextPage = null)
+    [HttpGet("/api/users")]
+    public async Task<IActionResult> UsersListAsync(string search = null, string searchBy = null, string nextPage = null, string oid = null)
     {
         UserCollectionResponse? users = null;
 
@@ -41,23 +41,31 @@ public class UsersController : ControllerBase
         {
             // First page of the list
             users = await _graphServiceClient.Users.GetAsync(requestConfiguration =>
-                        {
-                            requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
-                            requestConfiguration.QueryParameters.Top = 10;
+                {
+                    requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
+                    requestConfiguration.QueryParameters.Top = 10;
 
-                            if (!string.IsNullOrEmpty(search) && search.Length <= 15)
-                            {
-                                if (string.IsNullOrEmpty(searchBy) || (new string[] { "mail", "department", "jobTitle" }.Contains(searchBy) == false ))
-                                    requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
-                                else
-                                    requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
-                                
-                            }
-                            else
-                            {
-                                requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
-                            }
-                        });
+                    if (!string.IsNullOrEmpty(oid) && oid.Length <= 36)
+                    {
+                        // Get user by user object ID. Note, you can also get a user without search. This approach is for code simplicity.
+                        requestConfiguration.QueryParameters.Filter = $"Id eq '{oid}'";
+                    }
+                    else if (!string.IsNullOrEmpty(search) && search.Length <= 15)
+                    {
+                        // Search users in the directory
+                        if (string.IsNullOrEmpty(searchBy) || (new string[] { "mail", "department", "jobTitle" }.Contains(searchBy) == false))
+                            // Search by name and UPN
+                            requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                        else
+                            // Search by other attributes, such as eamil and job title
+                            requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
+
+                    }
+                    else
+                    {
+                        requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
+                    }
+                });
         }
         else
         {
@@ -97,7 +105,7 @@ public class UsersController : ControllerBase
         return Ok(rv);
     }
 
-    [HttpPost("create")]
+    [HttpPost("/api/users")]
     public async Task<IActionResult> UsersCreateAsync([FromForm] WgNewUser newUser)
     {
         // TBD:
@@ -140,9 +148,59 @@ public class UsersController : ControllerBase
         }
         catch (System.Exception ex)
         {
-
-            return Ok(ex.Message);
+            return BadRequest(new { error = ex.Message });
         }
+    }
+
+    [HttpPatch("/api/users")]
+    public async Task<IActionResult> UpdateUserAsync([FromForm] WgNewUser newUser)
+    {
+        // TBD:
+        // 1. Input validation of the UPN format
+
+        var requestBody = new User
+        {
+            Id = newUser.ID,
+            AccountEnabled = false,
+            DisplayName = newUser.DisplayName,
+            GivenName = newUser.GivenName,
+            Surname = newUser.Surname,
+            Department = newUser.Department,
+            //EmployeeHireDate = DateTime.UtcNow,
+            JobTitle = newUser.JobTitle,
+            Mail = newUser.Email,
+            MailNickname = newUser.UPN.Split("@")[0],
+        };
+
+        try
+        {
+            // https://learn.microsoft.com/graph/api/user-update
+            var result = await _graphServiceClient.Users[newUser.ID].PatchAsync(requestBody);
+
+            // Return the result
+            return Ok(result);
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpDelete("/api/users")]
+    public async Task<IActionResult> DeleteUserAsync(string oid)
+    {
+
+        try
+        {
+            // https://learn.microsoft.com/graph/api/user-delete
+            await _graphServiceClient.Users[oid].DeleteAsync();
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+
+        return Ok();
     }
 
 }

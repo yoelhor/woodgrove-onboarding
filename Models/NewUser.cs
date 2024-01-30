@@ -4,6 +4,7 @@ namespace woodgrove_portal.Controllers;
 public class WgNewUser
 {
     public string UPN { get; set; }
+    public string? ID { get; set; }
     public string DisplayName { get; set; }
     public string? GivenName { get; set; }
     public string? Surname { get; set; }
