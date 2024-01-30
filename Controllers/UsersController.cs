@@ -11,6 +11,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using woodgrove_portal.Helpers;
 
 namespace woodgrove_portal.Controllers;
@@ -92,11 +93,11 @@ public class UsersController : ControllerBase
                 jobTitle = user.JobTitle ?? ""
             };
 
-            // Get the special diet from the extension attributes
+            // Get the user's manager
             if (user.Manager != null)
             {
                 User manager = await _graphServiceClient.Users[user.Manager.Id].GetAsync();
-                
+
                 if (manager != null)
                 {
                     wgUser.ManagerUpn = manager.UserPrincipalName!;
@@ -153,6 +154,18 @@ public class UsersController : ControllerBase
         {
             // https://learn.microsoft.com/graph/api/user-post-users
             var result = await _graphServiceClient.Users.PostAsync(requestBody);
+
+            // Add a manager
+            if (this.HttpContext.User.GetObjectId() != null)
+            {
+                // https://learn.microsoft.com/graph/api/user-post-manager
+                var managerRequestBody = new ReferenceUpdate
+                {
+                    OdataId = $"https://graph.microsoft.com/v1.0/users/{this.HttpContext.User.GetObjectId()}",
+                };
+
+                await _graphServiceClient.Users[result!.Id].Manager.Ref.PutAsync(managerRequestBody);
+            }
 
             // Send invite email
             await Invite.SendInviteAsync(_configuration, this.Request, newUser.Email);
