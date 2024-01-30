@@ -364,7 +364,7 @@
                     getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
                 }
             }).fail(function (response) {
-
+                console.log(response)
                 $('#updateEmployeeAlert').show();
                 $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
 
@@ -396,7 +396,7 @@
                     getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
                 }
             }).fail(function (response) {
-
+                console.log(response)
                 $('#deleteEmployeeAlert').show();
                 $('#deleteEmployeeAlertMessage').text(response.responseJSON.error);
 
