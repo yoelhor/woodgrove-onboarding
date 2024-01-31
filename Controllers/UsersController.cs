@@ -21,16 +21,17 @@ namespace woodgrove_portal.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IConfiguration _configuration;
-
+    private IMemoryCache _cache;
     private readonly ILogger<UsersController> _logger;
     private readonly GraphServiceClient _graphServiceClient;
 
 
-    public UsersController(ILogger<UsersController> logger, IConfiguration configuration, GraphServiceClient graphServiceClient)
+    public UsersController(ILogger<UsersController> logger, IMemoryCache cache, IConfiguration configuration, GraphServiceClient graphServiceClient)
     {
         _logger = logger;
         _configuration = configuration;
         _graphServiceClient = graphServiceClient;
+        _cache = cache;
     }
 
     [HttpGet("/api/users")]
@@ -138,7 +139,7 @@ public class UsersController : ControllerBase
 
         var requestBody = new User
         {
-            AccountEnabled = false,
+            AccountEnabled = true,
             DisplayName = newUser.DisplayName,
             GivenName = newUser.GivenName,
             Surname = newUser.Surname,
@@ -175,6 +176,9 @@ public class UsersController : ControllerBase
                 await _graphServiceClient.Users[result!.Id].Manager.Ref.PutAsync(managerRequestBody);
             }
 
+            // Add to the cache and 
+            await AddOrUpdateCacheAsync(newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId());
+
             // Send invite email
             await Invite.SendInviteAsync(_configuration, this.Request, newUser.Email);
 
@@ -185,6 +189,27 @@ public class UsersController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    private async Task AddOrUpdateCacheAsync(string uniqueName, string employeeEmail, string managerID)
+    {
+        // Get the manager email address
+        var manager = await _graphServiceClient.Users[managerID].GetAsync();
+        string managerEmail = string.Empty;
+
+        if (manager.Mail != null)
+            managerEmail = manager.Mail;
+        else
+            managerEmail = manager.UserPrincipalName;
+
+        UsersCache cache = new UsersCache()
+        {
+            UniqueName = uniqueName,
+            EmployeeEmail = employeeEmail,
+            ManagerEmail = managerEmail
+        };
+
+        _cache.Set(cache.UniqueName, cache.ToString(), DateTimeOffset.Now.AddHours(24));
     }
 
     [HttpGet("/api/users/invite")]
@@ -210,29 +235,32 @@ public class UsersController : ControllerBase
     }
 
     [HttpPatch("/api/users")]
-    public async Task<IActionResult> UpdateUserAsync([FromForm] WgNewUser newUser)
+    public async Task<IActionResult> UpdateUserAsync([FromForm] WgNewUser user)
     {
         // TBD:
         // 1. Input validation of the UPN format
 
         var requestBody = new User
         {
-            Id = newUser.ID,
+            Id = user.ID,
             AccountEnabled = false,
-            DisplayName = newUser.DisplayName,
-            GivenName = newUser.GivenName,
-            Surname = newUser.Surname,
-            Department = newUser.Department,
+            DisplayName = user.DisplayName,
+            GivenName = user.GivenName,
+            Surname = user.Surname,
+            Department = user.Department,
             //EmployeeHireDate = DateTime.UtcNow,
-            JobTitle = newUser.JobTitle,
-            Mail = newUser.Email,
-            MailNickname = newUser.UPN.Split("@")[0],
+            JobTitle = user.JobTitle,
+            Mail = user.Email,
+            MailNickname = user.UPN.Split("@")[0],
         };
 
         try
         {
             // https://learn.microsoft.com/graph/api/user-update
-            var result = await _graphServiceClient.Users[newUser.ID].PatchAsync(requestBody);
+            var result = await _graphServiceClient.Users[user.ID].PatchAsync(requestBody);
+
+            // Add to the cache and 
+            await AddOrUpdateCacheAsync(user.GivenName + " " + user.Surname, user.Email, this.HttpContext.User.GetObjectId());
 
             // Return the result
             return Ok(result);
@@ -258,6 +286,47 @@ public class UsersController : ControllerBase
         }
 
         return Ok();
+    }
+
+    [HttpGet("/api/users/tap")]
+    public async Task<IActionResult> GetTapAsync(string oid)
+    {
+        try
+        {
+            // Get the user email address
+            var user = _graphServiceClient.Users[oid].GetAsync();
+
+            // Try to get the existing TAP
+            var existingTap = _graphServiceClient.Users[oid].Authentication.TemporaryAccessPassMethods.GetAsync();
+
+            if (existingTap != null && existingTap.Result != null && existingTap.Result != null && existingTap!.Result!.Value!.Count > 1)
+            {
+                foreach (var eTap in existingTap.Result.Value)
+                {
+                    // Delete any old TAPs so we can create a new one
+                    await _graphServiceClient.Users[oid].Authentication.TemporaryAccessPassMethods[eTap.Id].DeleteAsync();
+                }
+            }
+
+            // Create a new TAP code
+            // https://learn.microsoft.com/graph/api/authentication-post-temporaryaccesspassmethods
+            var requestBody = new TemporaryAccessPassAuthenticationMethod
+            {
+                LifetimeInMinutes = 60,
+                IsUsableOnce = true,
+            };
+
+            var tap = await _graphServiceClient.Users[oid].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
+
+            // Send the TAP to the employee
+            await Invite.SendTapAsync(_configuration, this.Request, user.Result.Mail, tap.TemporaryAccessPass);
+
+            return Ok();
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
 }

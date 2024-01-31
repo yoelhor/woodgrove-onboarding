@@ -212,6 +212,12 @@
                         <span class="sr-only">Send invite</span>
                     </button>
 
+                    <button type="button" class="btn btn-primary" id="sendTapButton" onclick="sendTap()">
+                        <span class="spinner-border spinner-border-sm" id="sendTapSpinner" role="status"
+                            aria-hidden="true"></span>
+                        <span class="sr-only">Send access pass</span>
+                    </button>
+
                     <button type="button" class="btn btn-danger" id="updateDeleteEmployeeButton"
                         onclick="deleteEmployeeApproval()">Delete</button>
                 </div>
@@ -300,15 +306,13 @@
 
                 $("#usersListAlert").show();
 
-                if (response.responseJSON.error.includes("IDW10502"))
-                {
+                if (response.responseJSON.error.includes("IDW10502")) {
                     $("#usersListAlertMessage").html("Your security token is expired, <a href='/MicrosoftIdentity/Account/SignIn'>sign-in</a>.");
                 }
-                else
-                {
+                else {
                     $("#usersListAlertMessage").text(response.responseJSON.error);
                 }
-                
+
                 $("#nextPage").hide();
                 $("#spinner").hide();
             });
@@ -412,9 +416,14 @@
                     getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
                 }
             }).fail(function (response) {
-                console.log(response)
+                console.log("Update failed");
+                console.log(response);
                 $('#updateEmployeeAlert').show();
-                $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
+
+                if (response.responseText.includes("field is required"))
+                    $('#updateEmployeeAlertMessage').text("One or more validation errors occurred. The UPN, Email and Display name are required.");
+                else
+                    $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
 
                 disableDetailsButtons(false);
             });;
@@ -475,15 +484,41 @@
             });
         }
 
+        function sendTap() {
+
+            $('#sendTapSpinner').show();
+            disableDetailsButtons(true);
+
+            $.ajax({
+                url: "/api/users/tap?oid=" + $("#detailsId").val(),
+                success: function (result) {
+
+                    disableDetailsButtons(false);
+
+                }
+            }).fail(function (response) {
+                console.log("TAP error")
+                console.log(response)
+
+                $('#updateEmployeeAlert').show();
+                $('#updateEmployeeAlertMessage').text(response.responseJSON.error);
+
+                disableDetailsButtons(false);
+            });
+        }
+
         function disableDetailsButtons(value) {
             $('#updateEmployeeButton').attr("disabled", value);
             $('#updateDeleteEmployeeButton').attr("disabled", value);
             $('#inviteEmployeeButton').attr("disabled", value);
+            $('#sendTapButton').attr("disabled", value);
+
 
             // If the buttons are enabled, hide the spinners
             if (value == false) {
                 $('#updateEmployeeSpinner').hide();
                 $('#inviteEmployeeSpinner').hide();
+                $('#sendTapSpinner').hide();
             }
         }
 

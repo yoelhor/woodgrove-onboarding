@@ -9,6 +9,12 @@ using Microsoft.Extensions.Caching.Memory;
 using WoodgroveDemo.Helpers;
 using WoodgroveDemo.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
+using Constants = WoodgroveDemo.Models.Constants;
+using Microsoft.Graph.Models;
+using Status = WoodgroveDemo.Models.Status;
+using woodgrove_portal.Helpers;
+using woodgrove_portal.Controllers;
 
 namespace WoodgroveDemo.Controllers;
 
@@ -21,14 +27,16 @@ public class CallbackController : ControllerBase
     private TelemetryClient _telemetry;
     private IMemoryCache _cache;
     protected readonly ILogger<CallbackController> _log;
+    private readonly GraphServiceClient _graphServiceClient;
 
 
-    public CallbackController(TelemetryClient telemetry, IConfiguration configuration, IMemoryCache cache, ILogger<CallbackController> log)
+    public CallbackController(TelemetryClient telemetry, IConfiguration configuration, IMemoryCache cache, ILogger<CallbackController> log, GraphServiceClient graphServiceClient)
     {
         _configuration = configuration;
         _cache = cache;
         _telemetry = telemetry;
         _log = log;
+        _graphServiceClient = graphServiceClient;
     }
 
     [AllowAnonymous]
@@ -106,21 +114,9 @@ public class CallbackController : ControllerBase
 
                 // Add the indexed claim value to search and revoke the credential
                 // Note, this code is relevant only to the gift card demo
-                if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED &&
-                    callback.verifiedCredentialsData.Count == 1 && callback.verifiedCredentialsData[0].type.Contains(_configuration.GetSection("VerifiedID:RevokeCredentialsDemo:Type").Value))
+                if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED)
                 {
-                    status.IndexedClaimValue = callback.verifiedCredentialsData[0].claims.id;
-
-                    // In every Microsoft issued verifiable credential, there's a claim called credential Status indicates whether the credential is revoked.
-                    // But to avoid a case where a user may reuse the card before Entra ID manages to complete the revolution, check its itnernal (in this app) status using the cache object
-                    _cache.TryGetValue(status.IndexedClaimValue, out string credentialAppStatus);
-
-                    if (credentialAppStatus == "revoked")
-                    {
-                        status.Message = "Certificate validation failed (Woodgrove app)";
-                        status.RequestStatus = "presentation_error";
-                        status.JsonPayload = "{ \"requestStatus\": \"presentation_error\", \"error\": { \"code\": \"tokenError\", \"message\": \"The presented verifiable credential with jti is revoked.\"}}";
-                    }
+                    await SendEmailToManagerAndEmployeeAsync(callback);
                 }
 
                 // Add the status object to the cheace
@@ -151,6 +147,26 @@ public class CallbackController : ControllerBase
         catch (Exception ex)
         {
             return ErrorHandling(eventTelemetry, ex.Message, true, state);
+        }
+    }
+
+    private async Task SendEmailToManagerAndEmployeeAsync(CallbackEvent callback)
+    {
+        try
+        {
+            //
+            if (_cache.TryGetValue(callback.verifiedCredentialsData[0].claims.firstName + " " + callback.verifiedCredentialsData[0].claims.displayName, out string cacheValue))
+            {
+                UsersCache usersCache = UsersCache.Parse(cacheValue);
+
+                await Invite.SendSuccessfullyVerifiedAsync(this._configuration, this.Request, usersCache);
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+
+            // TBD error handling
         }
     }
 

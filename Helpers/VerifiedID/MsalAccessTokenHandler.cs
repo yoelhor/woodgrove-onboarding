@@ -36,7 +36,7 @@ namespace WoodgroveDemo.Helpers
             return certificateDescription.Certificate;
         }
 
-        public static async Task<string> AcquireToken(Settings settings, IMemoryCache cache)
+        public static async Task<string> AcquireToken(Settings settings, IMemoryCache? cache)
         {
             // Aquire an access token which will be sent as bearer to the request API
             // Try to read the manifest from the cache using its URL key
