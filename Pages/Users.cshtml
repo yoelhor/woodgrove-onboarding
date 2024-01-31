@@ -27,6 +27,10 @@
         </div>
     </div>
 
+    <div class="alert alert-danger" id="usersListAlert" style="display: none; margin-top: 30px;">
+        <strong>Error!</strong> <span id="usersListAlertMessage"></span>
+    </div>
+
     <table class="table table-striped" id="users" style="margin-top: 20px;">
         <thead>
             <tr>
@@ -250,6 +254,8 @@
     <script>
         function getUsers(nextPage, search, searchBy) {
 
+            $("#usersListAlert").hide();
+
             var apiUrl = "/api/users";
 
             if (nextPage != null) {
@@ -263,7 +269,7 @@
                 if (searchBy != null)
                     apiUrl += '&searchBy=' + searchBy;
                 // Clear the table 
-                $("#users tr").remove();
+                $("#users > tbody").empty();
             }
 
             // Show the spinner
@@ -289,6 +295,22 @@
                     // Hide the spinner
                     $("#spinner").hide();
                 }
+            }).fail(function (response) {
+                console.log(response)
+
+                $("#usersListAlert").show();
+
+                if (response.responseJSON.error.includes("IDW10502"))
+                {
+                    $("#usersListAlertMessage").html("Your security token is expired, <a href='/MicrosoftIdentity/Account/SignIn'>sign-in</a>.");
+                }
+                else
+                {
+                    $("#usersListAlertMessage").text(response.responseJSON.error);
+                }
+                
+                $("#nextPage").hide();
+                $("#spinner").hide();
             });
         }
 
@@ -353,8 +375,6 @@
                         // Title for the delete account
                         $("#deleteAccountName").text(result.users[0].displayName);
 
-                        // employeeHireDate
-                        // employeeId
                         userDetailsModal.show();
 
                     }

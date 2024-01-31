@@ -37,89 +37,95 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> UsersListAsync(string search = null, string searchBy = null, string nextPage = null, string oid = null)
     {
         UserCollectionResponse? users = null;
-
-        if (string.IsNullOrEmpty(nextPage))
+        try
         {
-            // First page of the list
-            users = await _graphServiceClient.Users.GetAsync(requestConfiguration =>
-                {
-                    requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
-                    requestConfiguration.QueryParameters.Top = 10;
+            if (string.IsNullOrEmpty(nextPage))
+            {
+                // First page of the list
+                users = await _graphServiceClient.Users.GetAsync(requestConfiguration =>
+                    {
+                        requestConfiguration.QueryParameters.Select = new string[] { "Id", "UserPrincipalName", "DisplayName", "GivenName", "Surname", "EmployeeId", "EmployeeHireDate", "Department", "mail", "jobTitle" };
+                        requestConfiguration.QueryParameters.Top = 10;
 
-                    if (!string.IsNullOrEmpty(oid) && oid.Length <= 36)
-                    {
-                        // Get user by user object ID. Note, you can also get a user without search. This approach is for code simplicity.
-                        requestConfiguration.QueryParameters.Filter = $"Id eq '{oid}'";
-                        requestConfiguration.QueryParameters.Expand = new string[] { "Manager" };
-                    }
-                    else if (!string.IsNullOrEmpty(search) && search.Length <= 15)
-                    {
-                        // Search users in the directory
-                        if (string.IsNullOrEmpty(searchBy) || (new string[] { "mail", "department", "jobTitle" }.Contains(searchBy) == false))
-                            // Search by name and UPN
-                            requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                        if (!string.IsNullOrEmpty(oid) && oid.Length <= 36)
+                        {
+                            // Get user by user object ID. Note, you can also get a user without search. This approach is for code simplicity.
+                            requestConfiguration.QueryParameters.Filter = $"Id eq '{oid}'";
+                            requestConfiguration.QueryParameters.Expand = new string[] { "Manager" };
+                        }
+                        else if (!string.IsNullOrEmpty(search) && search.Length <= 15)
+                        {
+                            // Search users in the directory
+                            if (string.IsNullOrEmpty(searchBy) || (new string[] { "mail", "department", "jobTitle" }.Contains(searchBy) == false))
+                                // Search by name and UPN
+                                requestConfiguration.QueryParameters.Filter = $"startswith(displayName,'{search}') or startswith(UserPrincipalName,'{search}')";
+                            else
+                                // Search by other attributes, such as eamil and job title
+                                requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
+
+                            // TBD filter by manager using direct reports
+                            //https://learn.microsoft.com/graph/api/user-list-directreports
+                        }
                         else
-                            // Search by other attributes, such as eamil and job title
-                            requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
-
-                        // TBD filter by manager using direct reports
-                        //https://learn.microsoft.com/graph/api/user-list-directreports
-                    }
-                    else
-                    {
-                        requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
-                    }
-                });
-        }
-        else
-        {
-            // Next or previous pages
-            users = await _graphServiceClient.Users.WithUrl(nextPage).GetAsync();
-        }
-
-
-        WgUsers rv = new WgUsers();
-        foreach (var user in users.Value)
-        {
-            WgUser wgUser = new WgUser()
+                        {
+                            requestConfiguration.QueryParameters.Orderby = new string[] { "DisplayName" };
+                        }
+                    });
+            }
+            else
             {
-                Id = user.Id!,
-                UPN = user.UserPrincipalName!,
-                DisplayName = user.DisplayName ?? "",
-                GivenName = user.GivenName ?? "",
-                Surname = user.Surname ?? "",
-                Department = user.Department ?? "",
-                EmployeeId = user.EmployeeId ?? "",
-                EmployeeHireDate = user.EmployeeHireDate != null ? user.EmployeeHireDate.Value.ToString("d") : "",
-                Email = user.Mail ?? "",
-                jobTitle = user.JobTitle ?? ""
-            };
-
-            // Get the user's manager
-            if (user.Manager != null)
-            {
-                User manager = await _graphServiceClient.Users[user.Manager.Id].GetAsync();
-
-                if (manager != null)
-                {
-                    wgUser.ManagerUpn = manager.UserPrincipalName!;
-                }
+                // Next or previous pages
+                users = await _graphServiceClient.Users.WithUrl(nextPage).GetAsync();
             }
 
-            rv.Users.Add(wgUser);
-        }
 
-        // Get the next page URL
-        if (!string.IsNullOrEmpty(users.OdataNextLink))
-        {
-            rv.NextPage = HttpUtility.UrlEncode(users.OdataNextLink!);
-        }
-        else
-        {
-            rv.NextPage = "";
-        }
+            WgUsers rv = new WgUsers();
+            foreach (var user in users.Value)
+            {
+                WgUser wgUser = new WgUser()
+                {
+                    Id = user.Id!,
+                    UPN = user.UserPrincipalName!,
+                    DisplayName = user.DisplayName ?? "",
+                    GivenName = user.GivenName ?? "",
+                    Surname = user.Surname ?? "",
+                    Department = user.Department ?? "",
+                    EmployeeId = user.EmployeeId ?? "",
+                    EmployeeHireDate = user.EmployeeHireDate != null ? user.EmployeeHireDate.Value.ToString("d") : "",
+                    Email = user.Mail ?? "",
+                    jobTitle = user.JobTitle ?? ""
+                };
 
-        return Ok(rv);
+                // Get the user's manager
+                if (user.Manager != null)
+                {
+                    User manager = await _graphServiceClient.Users[user.Manager.Id].GetAsync();
+
+                    if (manager != null)
+                    {
+                        wgUser.ManagerUpn = manager.UserPrincipalName!;
+                    }
+                }
+
+                rv.Users.Add(wgUser);
+            }
+
+            // Get the next page URL
+            if (!string.IsNullOrEmpty(users.OdataNextLink))
+            {
+                rv.NextPage = HttpUtility.UrlEncode(users.OdataNextLink!);
+            }
+            else
+            {
+                rv.NextPage = "";
+            }
+
+            return Ok(rv);
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPost("/api/users")]
