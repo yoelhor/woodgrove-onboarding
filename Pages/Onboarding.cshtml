@@ -15,22 +15,29 @@
 
 <h1>Create your account</h1>
 
-<div class="jumbotron wgu_jumbotron_demo">
+
+<!-------Error section -------->
+<div id="errorArea" class="alert alert-danger" style="margin-top: 25px; display: none;" role="alert">
+    <h4 class="alert-heading">Error</h4>
+    <p id="errorUserMessage"></p>
+
+    <a class="link-danger" data-bs-toggle="collapse" href="#errorMessage" role="button" aria-expanded="false"
+        aria-controls="errorMessage">
+        Show more
+    </a>
+    <p class="collapse" id="errorMessage"></p>
+</div>
+
+
+<div class="jumbotron wgu_jumbotron_demo" style="margin-top: 50px;">
     <div class="bs-stepper vertical">
         <div class="bs-stepper-header" role="tablist">
             <!-- your steps here -->
             <div class="step" data-target="#intro-part">
                 <button type="button" class="step-trigger" role="tab" aria-controls="intro-part"
                     id="intro-part-trigger">
-                    <span class="bs-stepper-circle" style="visibility: hidden;"><i class="bi bi-info-lg"></i></span>
+                    <span class="bs-stepper-circle"><i class="bi bi-info-lg"></i></span>
                     <span class="bs-stepper-label">Welcome</span>
-                </button>
-            </div>
-            <div class="step" data-target="#information-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="information-part"
-                    id="information-part-trigger">
-                    <span class="bs-stepper-circle"><i class="bi bi-keyboard"></i></span>
-                    <span class="bs-stepper-label">Select a class</span>
                 </button>
             </div>
             <div class="line"></div>
@@ -62,75 +69,31 @@
             <!-- Introdction step -->
             <div id="intro-part" class="content fs-5" role="tabpanel" aria-labelledby="intro-part-trigger">
 
-                This online demo will help you to confirm you attended a class with your student card.
+                Welcome aboard new hire! This online demo will help you to create your identity account in your
+                organization.
+                To create your account you need to present your TrueID card. The TrueID is fictitious identity
+                verification provider we partnership to verified our new hires identity.
+                <br>
+                <img style="padding-top: 25px; height: 200px;" alt="An example of TrueID card"
+                    src="https://woodgroveemployee.azurewebsites.net/assets/images/verification/true-id-card.png" />
 
                 <p style="padding-top: 15px;">
-                    Do not have a student card? click <a asp-page="Issue" class="link-warning">here</a> to issue.
-                </p>
-
-                <p style="padding-top: 15px;">
-                    To start, click the
-                    start
-                    button.
+                    Do not have a TrueID card? click <a href="https://trueidentityinc.azurewebsites.net/"
+                        class="link-warning">here</a> to get one.
                 </p>
 
                 <div class="position-absolute bottom-0 end-0">
-                    <button class="btn btn-warning" onclick="stepper.next()">Start</button>
-                </div>
-            </div>
-
-            <!-- Add credential's information step -->
-            <div id="information-part" class="content fs-5" role="tabpanel" aria-labelledby="information-part-trigger">
-
-                Please select a class:
-
-                <div class="mb-3" style="margin-top: 20px;">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="classGroup" id="defaultCheck1" checked>
-                        <label class="form-check-label" for="defaultCheck1">
-                            Probability Management
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="classGroup" id="defaultCheck2">
-                        <label class="form-check-label" for="defaultCheck2">
-                            Achieving Innovation Through Inspiration
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="classGroup" id="defaultCheck2">
-                        <label class="form-check-label" for="defaultCheck2">
-                            Accounting for Managers and Entrepreneurs
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="classGroup" id="defaultCheck2">
-                        <label class="form-check-label" for="defaultCheck2">
-                            Building Modeling Workshop
-                        </label>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="lastName" class="form-label">Date & Time:</label>
-                    <input type="text" readonly class="form-control-plaintext" id="dateAndTime"
-                        value="@DateTime.Now.ToString()" style="width: 300px; color: orange;" required>
-                </div>
-
-                <div class="position-absolute bottom-0 end-0">
-                    <button class="btn btn-warning" onclick="startPresentation('IdTokenHint');">
+                    <button class="btn btn-warning" onclick="startPresentation();">
                         <span id="startDemoSpinner" style="display: none;" class="spinner-border spinner-border-sm"
                             role="status" aria-hidden="true"></span> Start</button>
                 </div>
-
-                <div class="position-absolute bottom-0 start-0">
-                    <button class="btn btn-secondary" onclick="stepper.previous()">Back</button>
-                </div>
             </div>
+
             <div id="qrcode-part" class="content fs-5" role="tabpanel" aria-labelledby="qrcode-part-trigger">
                 <p>
                     Scan the QR code with your mobile phone.
                 </p>
-                <div class=" text-center">
+                <div class="">
                     <div id="qrcode" class="align-self-center" style="display: inline-block;"></div>
                 </div>
 
@@ -172,12 +135,29 @@
     </div>
 </div>
 
-<h2>Request</h2>
-<div id="requestPayload">
-</div>
+<!--Technical details section-->
+<p>
+    <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+        data-bs-toggle="collapse" href="#collapseTechnicalDetails" role="button" aria-expanded="false"
+        aria-controls="collapseTechnicalDetails">
+        Show the technical details
+    </a>
+</p>
 
-<h2>Response</h2>
-<div id="responseBody">
+<div class="collapse" id="collapseTechnicalDetails">
+    <div class="card card-body">
+        <h2>Request</h2>
+        <div id="requestPayload">Waiting...</div>
+
+        <h2 style="margin-top: 50px;">Response</h2>
+        <div id="responseBody">Waiting...</div>
+
+        <h2 style="margin-top: 50px;">Notifications</h2>
+        <div id="CallbackJsonPayload">Waiting...</div>
+
+        <h2 style="margin-top: 50px;">Claims</h2>
+        <div id="content">Waiting...</div>
+    </div>
 </div>
 
 
@@ -200,6 +180,7 @@
 
             // Show the spinner
             $("#startDemoSpinner").show();
+            $("#errorArea").hide();
 
             // Call the Woodgrove demo API
             $.ajax({
@@ -340,14 +321,14 @@
                     // Show the claims
                     var jsonPayload = JSON.parse(data.jsonPayload);
                     var html = `<table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>Claim</th>
-                                <th>Value</th>
-                                <th>Type</th>
-                                <th>Issuer</th>
-                            </tr>
-                            </thead><tbody>`
+                                                <thead>
+                                                <tr>
+                                                    <th>Claim</th>
+                                                    <th>Value</th>
+                                                    <th>Type</th>
+                                                    <th>Issuer</th>
+                                                </tr>
+                                                </thead><tbody>`
 
                     if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
 
