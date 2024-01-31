@@ -62,8 +62,8 @@ public class UsersController : ControllerBase
                             // Search by other attributes, such as eamil and job title
                             requestConfiguration.QueryParameters.Filter = $"startswith({searchBy},'{search}')";
 
-                        // TBD filter by manager
-                        //https://graph.microsoft.com/beta/users/?$expand=manager($filter=id eq 'ed856f9f-7915-4a09-b0ef-190c59a1f12e')
+                        // TBD filter by manager using direct reports
+                        //https://learn.microsoft.com/graph/api/user-list-directreports
                     }
                     else
                     {
