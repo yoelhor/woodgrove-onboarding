@@ -177,7 +177,7 @@ public class UsersController : ControllerBase
             }
 
             // Add to the cache and 
-            await AddOrUpdateCacheAsync(newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId());
+            await AddOrUpdateCacheAsync(newUser.GivenName + newUser.Surname, newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId(), "Created");
 
             // Send invite email
             await Invite.SendInviteAsync(_configuration, this.Request, newUser.Email);
@@ -191,7 +191,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    private async Task AddOrUpdateCacheAsync(string uniqueName, string employeeEmail, string managerID)
+    private async Task AddOrUpdateCacheAsync(string uniqueID, string displayName, string employeeEmail, string managerID, string status)
     {
         // Get the manager email address
         var manager = await _graphServiceClient.Users[managerID].GetAsync();
@@ -204,12 +204,15 @@ public class UsersController : ControllerBase
 
         UsersCache cache = new UsersCache()
         {
-            UniqueName = uniqueName,
+            UniqueID = uniqueID.ToLower().Trim(),
+            DisplayName = displayName,
             EmployeeEmail = employeeEmail,
-            ManagerEmail = managerEmail
+            ManagerEmail = managerEmail,
+            Status = status,
+            StatusTime = DateTime.UtcNow
         };
 
-        _cache.Set(cache.UniqueName, cache.ToString(), DateTimeOffset.Now.AddHours(24));
+        _cache.Set(cache.UniqueID, cache.ToString(), DateTimeOffset.Now.AddHours(24));
     }
 
     [HttpGet("/api/users/invite")]
@@ -260,7 +263,7 @@ public class UsersController : ControllerBase
             var result = await _graphServiceClient.Users[user.ID].PatchAsync(requestBody);
 
             // Add to the cache and 
-            await AddOrUpdateCacheAsync(user.GivenName + " " + user.Surname, user.Email, this.HttpContext.User.GetObjectId());
+            await AddOrUpdateCacheAsync(user.GivenName + user.Surname, user.GivenName + " " + user.Surname, user.Email, this.HttpContext.User.GetObjectId(), "Updated");
 
             // Return the result
             return Ok(result);
@@ -279,6 +282,8 @@ public class UsersController : ControllerBase
         {
             // https://learn.microsoft.com/graph/api/user-delete
             await _graphServiceClient.Users[oid].DeleteAsync();
+
+            // TBD: update the cache
         }
         catch (System.Exception ex)
         {

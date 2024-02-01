@@ -261,6 +261,7 @@
         function getUsers(nextPage, search, searchBy) {
 
             $("#usersListAlert").hide();
+            $("#nextPage").hide();
 
             var apiUrl = "/api/users";
 
@@ -293,9 +294,6 @@
                     if (result.nextPage) {
                         $("#nextPage").attr('onclick', 'getUsers("' + result.nextPage + '"); return false;');
                         $("#nextPage").show();
-                    }
-                    else {
-                        $("#nextPage").hide();
                     }
 
                     // Hide the spinner

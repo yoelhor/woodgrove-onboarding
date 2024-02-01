@@ -155,11 +155,15 @@ public class CallbackController : ControllerBase
         try
         {
             //
-            if (_cache.TryGetValue(callback.verifiedCredentialsData[0].claims.firstName + " " + callback.verifiedCredentialsData[0].claims.displayName, out string cacheValue))
+            if (_cache.TryGetValue((callback.verifiedCredentialsData[0].claims.firstName + callback.verifiedCredentialsData[0].claims.lastName).ToLower(), out string cacheValue))
             {
                 UsersCache usersCache = UsersCache.Parse(cacheValue);
+                usersCache.Status = "Verified";
+                usersCache.StatusTime = DateTime.UtcNow;
 
-                await Invite.SendSuccessfullyVerifiedAsync(this._configuration, this.Request, usersCache);
+                _cache.Set(usersCache.UniqueID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
+
+                await Invite.SendSuccessfullyVerifiedAsync(this._configuration, this.Request, usersCache, _cache);
             }
 
         }

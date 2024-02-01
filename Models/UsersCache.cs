@@ -4,9 +4,13 @@ namespace woodgrove_portal.Controllers;
 
 public class UsersCache
 {
-    public string UniqueName { get; set; }
+    public string UniqueID { get; set; }
+    public string DisplayName { get; set; }
     public string EmployeeEmail { get; set; }
     public string ManagerEmail { get; set; }
+    public string Status { get; set; }
+    public string Error { get; set; }
+    public DateTime StatusTime { get; set; }
 
 
     /// <summary>

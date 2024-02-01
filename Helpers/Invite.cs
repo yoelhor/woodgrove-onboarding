@@ -1,5 +1,6 @@
 
 using Azure.Communication.Email;
+using Microsoft.Extensions.Caching.Memory;
 using woodgrove_portal.Controllers;
 
 namespace woodgrove_portal.Helpers;
@@ -55,26 +56,59 @@ public class Invite
             htmlContent);
     }
 
-    public static async Task SendSuccessfullyVerifiedAsync(IConfiguration configuration, HttpRequest request, UsersCache usersCache)
+    public static async Task SendSuccessfullyVerifiedAsync(IConfiguration configuration, HttpRequest request, UsersCache usersCache, IMemoryCache cache)
     {
         var emailClient = new EmailClient(configuration.GetSection("AppSettings:EmailConnectionString").Value);
-
-        var subject = "Your identity successfully verified";
-        var htmlContent = $"<html><body><h1>Thank you</h1><br/><p>Thank you {usersCache.UniqueName}! Your identity successfully verified.</p></body></html>";
         var sender = "donotreply@woodgrovedemo.com";
 
-        // Email to the employee
-        EmailSendOperation emailSendOperation = await emailClient.SendAsync(
-            Azure.WaitUntil.Completed,
-            sender,
-            usersCache.EmployeeEmail,
-            subject,
-            htmlContent);
+        try
+        {
+            // Email to the employee
+            var subject = "Your identity successfully verified";
+            var htmlContent = @$"<html><body>
+            <h1>Thank you</h1>
+            <p>Thank you {usersCache.DisplayName}! Your identity successfully verified. 
+            Your manager will contact you soon and provide you with guidance how to proceed</p>
+            </body></html>";
 
-        subject = "Action required: Complete new hire onboarding";
-        var link = request.Scheme + "://" + request.Host + "/users";
-        htmlContent = $"<html><body><h1>Send your new employee a access pass</h1><br/><p>Please use <a href='{link}'>this link</a> and follow the guidance.</p></body></html>";
+            EmailSendOperation emailSendOperation1 = await emailClient.SendAsync(
+                Azure.WaitUntil.Completed,
+                sender,
+                usersCache.EmployeeEmail,
+                subject,
+                htmlContent);
+        }
+        catch (System.Exception ex)
+        {
+            usersCache.Error = $"Cannot send email to employee ({usersCache.EmployeeEmail}). Reason: {ex.Message}";
+            usersCache.StatusTime = DateTime.UtcNow;
+            cache.Set(usersCache.UniqueID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
+        }
+
         // Email to the manager
+        try
+        {
+            var subject = "Action required: Complete new hire onboarding";
+            var link = request.Scheme + "://" + request.Host + "/users";
+            var htmlContent = @$"<html><body>
+                    <h1>Send your new employee a access pass</h1>
+                    <p>Your new employee {usersCache.DisplayName} identity successfully verified.
+                    Please use <a href='{link}'>this link</a> and follow the guidance.</p>
+                </body></html>";
+
+            EmailSendOperation emailSendOperation2 = await emailClient.SendAsync(
+                Azure.WaitUntil.Completed,
+                sender,
+                usersCache.ManagerEmail,
+                subject,
+                htmlContent);
+        }
+        catch (System.Exception ex)
+        {
+            usersCache.Error = $"Cannot send email to manager ({usersCache.ManagerEmail}). Reason: {ex.Message}";
+            usersCache.StatusTime = DateTime.UtcNow;
+            cache.Set(usersCache.UniqueID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
+        }
 
     }
 
