@@ -1,11 +1,13 @@
 ﻿using System.Dynamic;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Web;
 using Azure;
 using Azure.Communication.Email;
 using Azure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Graph;
@@ -122,6 +124,21 @@ public class UsersController : ControllerBase
             }
 
             return Ok(rv);
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            string message = string.Empty;
+
+            if (ex.InnerException != null)
+            {
+                message = ex.InnerException.Message;
+            }
+            else
+            {
+                message = ex.Message;
+            }
+
+            return BadRequest(new { error = message, identityError = true });
         }
         catch (System.Exception ex)
         {
@@ -294,7 +311,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("/api/users/tap")]
-    public async Task<IActionResult> GetTapAsync(string oid)
+    public async Task<IActionResult> GetManagerTapAsync(string oid)
     {
         try
         {
@@ -333,5 +350,4 @@ public class UsersController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
-
 }

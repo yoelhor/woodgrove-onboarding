@@ -2,7 +2,7 @@
 @model woodgrove_portal.Pages.UsersModel
 @{
     <h1>Users</h1>
-    <h2>@this.Request.PathBase</h2>
+    <div style="display: none;" id="domain">@Model.DomainName</div>
     <div class="row" style="margin-top: 50px;">
 
         <div class="col-md-2">
@@ -304,8 +304,8 @@
 
                 $("#usersListAlert").show();
 
-                if (response.responseJSON.error.includes("IDW10502")) {
-                    $("#usersListAlertMessage").html("Your security token is expired, <a href='/MicrosoftIdentity/Account/SignIn'>sign-in</a>.");
+                if (response.responseJSON.identityError) {
+                    $("#usersListAlertMessage").html(response.responseJSON.error + ", try to <a href='/MicrosoftIdentity/Account/SignIn'>sign-in</a>.");
                 }
                 else {
                     $("#usersListAlertMessage").text(response.responseJSON.error);
@@ -541,6 +541,17 @@
                 $('#newEmployeeSpinner').hide();
                 $('#newEmployeeAlert').hide();
                 $('#newEmployeeButton').attr("disabled", false);
+
+                // Clear the form
+                var d = "@@" + $("#domain").text();
+
+                $("#newUPN").val(d);
+                $("#newEmail").val("");
+                $("#newDisplayName").val("");
+                $("#newGivenName").val("");
+                $("#newSurname").val("");
+                $("#newJobTitle").val("");
+                $("#newDepartment").val("");
             })
 
             $('#deleteUserModal').on('show.bs.modal', function (e) {
