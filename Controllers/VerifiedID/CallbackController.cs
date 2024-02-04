@@ -15,6 +15,8 @@ using Microsoft.Graph.Models;
 using Status = WoodgroveDemo.Models.Status;
 using woodgrove_portal.Helpers;
 using woodgrove_portal.Controllers;
+using System.Security.Cryptography.X509Certificates;
+using Azure.Identity;
 
 namespace WoodgroveDemo.Controllers;
 
@@ -112,14 +114,30 @@ public class CallbackController : ControllerBase
                 status.History = currentStatus.History;
                 status.AddHistory(callback.requestStatus, currentStatus.CalculateExecutionTime(), body);
 
-                // Add the indexed claim value to search and revoke the credential
-                // Note, this code is relevant only to the gift card demo
-                if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED)
+                // Get the user's cache object
+                UsersCache usersCache = null;
+                if (_cache.TryGetValue(callback.state.Split("|")[0], out string cacheValue))
                 {
-                    await SendEmailToManagerAndEmployeeAsync(callback);
+                    usersCache = UsersCache.Parse(cacheValue);
                 }
 
-                // Add the status object to the cheace
+                // Add the indexed claim value to search and revoke the credential
+                // Note, this code is relevant only to the gift card demo
+                if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED && usersCache != null)
+                {
+                    usersCache.Status = "Verified";
+                    usersCache.StatusTime = DateTime.UtcNow;
+
+                    string TAP = await this.GenerateTAP(callback, usersCache.UPN.Split("@")[1]);
+
+                    // Don't wait for the email to be sent
+                    Invite.SendTapAsync(_configuration, Request, usersCache.Email, TAP);
+
+                    _cache.Set(usersCache.ID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
+
+                }
+
+                // Add the status object to the ceche
                 _cache.Set(callback.state, status.ToString(), DateTimeOffset.Now.AddMinutes(Constants.AppSettings.CACHE_EXPIRES_IN_MINUTES));
 
                 // Add the error message to the telemetry
@@ -150,28 +168,59 @@ public class CallbackController : ControllerBase
         }
     }
 
-    private async Task SendEmailToManagerAndEmployeeAsync(CallbackEvent callback)
+    private async Task<string> GenerateTAP(CallbackEvent callback, string domain)
     {
         try
         {
-            //
-            if (_cache.TryGetValue((callback.verifiedCredentialsData[0].claims.firstName + callback.verifiedCredentialsData[0].claims.lastName).ToLower(), out string cacheValue))
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
+
+            X509Certificate2 clientCertificate = MsalAccessTokenHandler.ReadCertificate(_configuration.GetSection("AzureAd:ClientCertificates:0:CertificateThumbprint").Value);
+
+            // using Azure.Identity;
+            var options = new ClientCertificateCredentialOptions
             {
-                UsersCache usersCache = UsersCache.Parse(cacheValue);
-                usersCache.Status = "Verified";
-                usersCache.StatusTime = DateTime.UtcNow;
+                AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+            };
 
-                _cache.Set(usersCache.UniqueID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
 
-                await Invite.SendSuccessfullyVerifiedAsync(this._configuration, this.Request, usersCache, _cache);
-            }
+            // https://learn.microsoft.com/dotnet/api/azure.identity.clientcertificatecredential
+            var clientCertCredential = new ClientCertificateCredential(
+                domain, // This is the user's tenant ID
+                _configuration.GetSection("AzureAd:ClientId").Value, clientCertificate, options);
 
+            var graphClient = new GraphServiceClient(clientCertCredential, scopes);
+
+            // Try to get the existing TAP
+            string userObjectID = callback.state.Split("|")[0];
+            // var existingTap = graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.GetAsync();
+
+            // if (existingTap != null && existingTap.Result != null && existingTap.Result != null && existingTap!.Result!.Value!.Count > 1)
+            // {
+            //     foreach (var eTap in existingTap.Result.Value)
+            //     {
+            //         // Delete any old TAPs so we can create a new one
+            //         await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods[eTap.Id].DeleteAsync();
+            //     }
+            // }
+
+            // Create a new TAP code
+            // https://learn.microsoft.com/graph/api/authentication-post-temporaryaccesspassmethods
+            var requestBody = new TemporaryAccessPassAuthenticationMethod
+            {
+                LifetimeInMinutes = 60,
+                IsUsableOnce = true,
+            };
+
+            var tap = await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
+
+            // Return the TAP
+            return tap.TemporaryAccessPass;
         }
         catch (System.Exception ex)
         {
-
-            // TBD error handling
+            throw;
         }
+
     }
 
     private BadRequestObjectResult ErrorHandling(EventTelemetry eventTelemetry, string errorMessage, bool internl, string state, string requestStatus = "")

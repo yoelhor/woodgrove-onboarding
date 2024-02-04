@@ -15,6 +15,8 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using woodgrove_portal.Helpers;
+using woodgrove_portal.Models;
+using WoodgroveDemo.Helpers;
 
 namespace woodgrove_portal.Controllers;
 
@@ -193,11 +195,12 @@ public class UsersController : ControllerBase
                 await _graphServiceClient.Users[result!.Id].Manager.Ref.PutAsync(managerRequestBody);
             }
 
-            // Add to the cache and 
-            await AddOrUpdateCacheAsync(newUser.GivenName + newUser.Surname, newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId(), "Created");
-
+            string session = Guid.NewGuid().ToString();
             // Send invite email
-            await Invite.SendInviteAsync(_configuration, this.Request, newUser.Email);
+            await Invite.SendInviteAsync(_configuration, this.Request, result!.Id!, result!.DisplayName!, result!.Mail!, session);
+
+            // Add the user to the cache  
+            await AddOrUpdateCacheAsync(result!.Id!, result!.UserPrincipalName, newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
             // Return the result
             return Ok(result);
@@ -208,7 +211,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    private async Task AddOrUpdateCacheAsync(string uniqueID, string displayName, string employeeEmail, string managerID, string status)
+    private async Task AddOrUpdateCacheAsync(string oid, string upn, string displayName, string employeeEmail, string managerID, string status, string session)
     {
         // Get the manager email address
         var manager = await _graphServiceClient.Users[managerID].GetAsync();
@@ -221,15 +224,17 @@ public class UsersController : ControllerBase
 
         UsersCache cache = new UsersCache()
         {
-            UniqueID = uniqueID.ToLower().Trim(),
+            ID = oid,
+            UPN = upn,
+            Session = session,
             DisplayName = displayName,
-            EmployeeEmail = employeeEmail,
+            Email = employeeEmail,
             ManagerEmail = managerEmail,
             Status = status,
             StatusTime = DateTime.UtcNow
         };
 
-        _cache.Set(cache.UniqueID, cache.ToString(), DateTimeOffset.Now.AddHours(24));
+        _cache.Set(cache.ID, cache.ToString(), DateTimeOffset.Now.AddHours(24));
     }
 
     [HttpGet("/api/users/invite")]
@@ -241,8 +246,13 @@ public class UsersController : ControllerBase
 
             if (user != null)
             {
+                string session = Guid.NewGuid().ToString();
                 // Send invite email
-                await Invite.SendInviteAsync(_configuration, this.Request, user.Mail);
+                await Invite.SendInviteAsync(_configuration, this.Request, user.Id, user.DisplayName, user.Mail, session);
+
+                // Add the user to the cache  
+                await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.GivenName + " " + user.Surname, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
+
             }
 
             // Return the result
@@ -278,9 +288,6 @@ public class UsersController : ControllerBase
         {
             // https://learn.microsoft.com/graph/api/user-update
             var result = await _graphServiceClient.Users[user.ID].PatchAsync(requestBody);
-
-            // Add to the cache and 
-            await AddOrUpdateCacheAsync(user.GivenName + user.Surname, user.GivenName + " " + user.Surname, user.Email, this.HttpContext.User.GetObjectId(), "Updated");
 
             // Return the result
             return Ok(result);

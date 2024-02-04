@@ -14,7 +14,7 @@ namespace WoodgroveDemo.Helpers
 {
     public class MsalAccessTokenHandler
     {
-        private static X509Certificate2 ReadCertificate(string certificateThumbprint)
+        public static X509Certificate2 ReadCertificate(string certificateThumbprint)
         {
             if (string.IsNullOrWhiteSpace(certificateThumbprint))
             {

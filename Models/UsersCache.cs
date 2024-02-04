@@ -1,15 +1,19 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace woodgrove_portal.Controllers;
 
 public class UsersCache
 {
-    public string UniqueID { get; set; }
+    public string ID { get; set; }
+    public string UPN { get; set; }
     public string DisplayName { get; set; }
-    public string EmployeeEmail { get; set; }
+    public string Email { get; set; }
     public string ManagerEmail { get; set; }
     public string Status { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string Error { get; set; }
+    public string Session { get; set; }
     public DateTime StatusTime { get; set; }
 
 

@@ -12,6 +12,11 @@ using Microsoft.Extensions.Logging;
 using WoodgroveDemo.Models.Presentation;
 using System.Net.Http.Headers;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using woodgrove_portal.Controllers;
+using woodgrove_portal.Models;
+using woodgrove_portal.Pages;
 
 namespace WoodgroveDemo.Controllers.IdTokenHint;
 
@@ -41,18 +46,30 @@ public class PresentController : ControllerBase
     [AllowAnonymous]
     [HttpGet("/api/Present")]
 
-    public async Task<ResponseToClient> Get()
+    public async Task<ResponseToClient> Get(string token)
     {
         // Clear session
         this.HttpContext.Session.Clear();
 
         // Initiate the status object
         Status status = new Status("IdTokenHint", "Present");
+        UsersCache usersCache = null;
+
+        try
+        {
+            usersCache = OnboardingModel.TokenValidation(_Configuration, token, _Cache);
+        }
+        catch (Exception ex)
+        {
+            _Response.ErrorMessage = "Invalid request";
+            _Response.ErrorUserMessage = ex.Message;
+            return _Response;
+        }
 
         try
         {
             // Create a presentation request object
-            PresentationRequest request = RequestHelper.CreatePresentationRequest(_Settings, this.Request);
+            PresentationRequest request = RequestHelper.CreatePresentationRequest(_Settings, this.Request, usersCache.ID);
 
             // Serialize the request object to JSON HTML format
             _Response.RequestPayload = request.ToHtml();

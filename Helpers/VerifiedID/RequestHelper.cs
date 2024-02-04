@@ -36,6 +36,7 @@ public class RequestHelper
     public static PresentationRequest CreatePresentationRequest(
             Settings settings,
             HttpRequest httpRequest,
+            string state,
             string[] acceptedIssuers = null,
             bool faceCheck = false)
     {
@@ -51,7 +52,7 @@ public class RequestHelper
             callback = new Models.Presentation.Callback()
             {
                 url = settings.Api.URL(httpRequest),
-                state = Guid.NewGuid().ToString(),
+                state = state + "|" +  Guid.NewGuid().ToString(),
                 headers = new Dictionary<string, string>() { { "api-key", settings.Api.ApiKey } }
             },
             includeReceipt = settings.UX.IncludeReceipt,

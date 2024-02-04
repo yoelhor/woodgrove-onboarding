@@ -15,378 +15,395 @@
 
 <h1>Create your account</h1>
 
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div id="errorArea" class="alert alert-danger" style="margin-top: 25px;" role="alert">
+        <h4>Error</h4>
+        <p>@Model.Error</p>
+    </div>
+}
+else
+{
+    <!-------Error section -------->
+    <div id="errorArea" class="alert alert-danger" style="margin-top: 25px; display: none;" role="alert">
+        <h4 class="alert-heading">Error</h4>
+        <p id="errorUserMessage"></p>
 
-<!-------Error section -------->
-<div id="errorArea" class="alert alert-danger" style="margin-top: 25px; display: none;" role="alert">
-    <h4 class="alert-heading">Error</h4>
-    <p id="errorUserMessage"></p>
-
-    <a class="link-danger" data-bs-toggle="collapse" href="#errorMessage" role="button" aria-expanded="false"
-        aria-controls="errorMessage">
-        Show more
-    </a>
-    <p class="collapse" id="errorMessage"></p>
-</div>
+        <a class="link-danger" data-bs-toggle="collapse" href="#errorMessage" role="button" aria-expanded="false"
+            aria-controls="errorMessage">
+            Show more
+        </a>
+        <p class="collapse" id="errorMessage"></p>
+    </div>
 
 
-<div class="jumbotron wgu_jumbotron_demo" style="margin-top: 50px;">
-    <div class="bs-stepper vertical">
-        <div class="bs-stepper-header" role="tablist">
-            <!-- your steps here -->
-            <div class="step" data-target="#intro-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="intro-part"
-                    id="intro-part-trigger">
-                    <span class="bs-stepper-circle"><i class="bi bi-info-lg"></i></span>
-                    <span class="bs-stepper-label">Welcome</span>
-                </button>
-            </div>
-            <div class="line"></div>
-            <div class="step" data-target="#qrcode-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="qrcode-part"
-                    id="qrcode-part-trigger">
-                    <span class="bs-stepper-circle"><i class="bi bi-qr-code"></i></span>
-                    <span class="bs-stepper-label">Scan the QR code</span>
-                </button>
-            </div>
-            <div class="line"></div>
-            <div class="step" data-target="#userAction-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="userAction-part"
-                    id="userAction-part-trigger">
-                    <span class="bs-stepper-circle"><i class="bi bi-person-lock"></i></span>
-                    <span class="bs-stepper-label">Share the card</span>
-                </button>
-            </div>
-            <div class="line"></div>
-            <div class="step" data-target="#completed-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="completed-part"
-                    id="completed-part-trigger">
-                    <span class="bs-stepper-circle"><i class="bi bi-check2-all"></i></span>
-                    <span class="bs-stepper-label">Completed</span>
-                </button>
-            </div>
-        </div>
-        <div class="bs-stepper-content position-relative" style="width: 100%;">
-            <!-- Introdction step -->
-            <div id="intro-part" class="content fs-5" role="tabpanel" aria-labelledby="intro-part-trigger">
-
-                Welcome aboard new hire! This online demo will help you to create your identity account in your
-                organization.
-                To create your account you need to present your TrueID card. The TrueID is fictitious identity
-                verification provider we partnership to verified our new hires identity.
-                <br>
-                <img style="padding-top: 25px; height: 200px;" alt="An example of TrueID card"
-                    src="https://woodgroveemployee.azurewebsites.net/assets/images/verification/true-id-card.png" />
-
-                <p style="padding-top: 15px;">
-                    Do not have a TrueID card? click <a href="https://trueidentityinc.azurewebsites.net/"
-                        class="link-warning">here</a> to get one.
-                </p>
-
-                <div class="position-absolute bottom-0 end-0">
-                    <button class="btn btn-warning" onclick="startPresentation();">
-                        <span id="startDemoSpinner" style="display: none;" class="spinner-border spinner-border-sm"
-                            role="status" aria-hidden="true"></span> Start</button>
+    <div class="jumbotron wgu_jumbotron_demo" style="margin-top: 50px;">
+        <div class="bs-stepper vertical">
+            <div class="bs-stepper-header" role="tablist">
+                <!-- your steps here -->
+                <div class="step" data-target="#intro-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="intro-part"
+                        id="intro-part-trigger">
+                        <span class="bs-stepper-circle"><i class="bi bi-info-lg"></i></span>
+                        <span class="bs-stepper-label">Welcome</span>
+                    </button>
+                </div>
+                <div class="line"></div>
+                <div class="step" data-target="#qrcode-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="qrcode-part"
+                        id="qrcode-part-trigger">
+                        <span class="bs-stepper-circle"><i class="bi bi-qr-code"></i></span>
+                        <span class="bs-stepper-label">Scan the QR code</span>
+                    </button>
+                </div>
+                <div class="line"></div>
+                <div class="step" data-target="#userAction-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="userAction-part"
+                        id="userAction-part-trigger">
+                        <span class="bs-stepper-circle"><i class="bi bi-person-lock"></i></span>
+                        <span class="bs-stepper-label">Share the card</span>
+                    </button>
+                </div>
+                <div class="line"></div>
+                <div class="step" data-target="#completed-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="completed-part"
+                        id="completed-part-trigger">
+                        <span class="bs-stepper-circle"><i class="bi bi-check2-all"></i></span>
+                        <span class="bs-stepper-label">Completed</span>
+                    </button>
                 </div>
             </div>
+            <div class="bs-stepper-content position-relative" style="width: 100%;">
+                <!-- Introdction step -->
+                <div id="intro-part" class="content fs-5" role="tabpanel" aria-labelledby="intro-part-trigger">
 
-            <div id="qrcode-part" class="content fs-5" role="tabpanel" aria-labelledby="qrcode-part-trigger">
-                <p>
-                    Scan the QR code with your mobile phone.
-                </p>
-                <div class="">
-                    <div id="qrcode" class="align-self-center" style="display: inline-block;"></div>
+                    Welcome aboard new hire! This online demo will help you to create your identity account in your
+                    organization.
+                    To create your account you need to present your TrueID card. The TrueID is fictitious identity
+                    verification provider we partnership to verified our new hires identity.
+                    <br>
+                    <img style="padding-top: 25px; height: 200px;" alt="An example of TrueID card"
+                        src="https://woodgroveemployee.azurewebsites.net/assets/images/verification/true-id-card.png" />
+
+                    <p style="padding-top: 15px;">
+                        Do not have a TrueID card? click <a href="https://trueidentityinc.azurewebsites.net/"
+                            class="link-warning">here</a> to get one.
+                    </p>
+
+                    <div class="position-absolute bottom-0 end-0">
+                        <button class="btn btn-warning" onclick="startPresentation();">
+                            <span id="startDemoSpinner" style="display: none;" class="spinner-border spinner-border-sm"
+                                role="status" aria-hidden="true"></span> Start</button>
+                    </div>
                 </div>
 
+                <div id="qrcode-part" class="content fs-5" role="tabpanel" aria-labelledby="qrcode-part-trigger">
+                    <p>
+                        Scan the QR code with your mobile phone.
+                    </p>
+                    <div class="">
+                        <div id="qrcode" class="align-self-center" style="display: inline-block;"></div>
+                    </div>
 
-                <p class="fs-6" style="margin-top: 15px;">
-                    Run this demo on a
-                    mobile device?
-                    use <a id="targetUrl" class="link-warning" href=""> this
-                        link</a>!
-                </p>
 
-                <div class="position-absolute bottom-0 start-0">
-                    <button class="btn btn-secondary" onclick="stepper.previous()">Back</button>
+                    <p class="fs-6" style="margin-top: 15px;">
+                        Run this demo on a
+                        mobile device?
+                        use <a id="targetUrl" class="link-warning" href=""> this
+                            link</a>!
+                    </p>
+
+                    <div class="position-absolute bottom-0 start-0">
+                        <button class="btn btn-secondary" onclick="stepper.previous()">Back</button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="userAction-part" class="content fs-5" role="tabpanel" aria-labelledby="userAction-part-trigger">
-                <p>
-                    In the Microsoft Authenticator review the presentation request and share the TrueID card with us.
-                </p>
+                <div id="userAction-part" class="content fs-5" role="tabpanel" aria-labelledby="userAction-part-trigger">
+                    <p>
+                        In the Microsoft Authenticator review the presentation request and share the TrueID card with us.
+                    </p>
 
-                <div class="text-center">
-                    <div class="spinner-border" style="color: orange;" role="status">
-                        <span class="sr-only"></span>
+                    <div class="text-center">
+                        <div class="spinner-border" style="color: orange;" role="status">
+                            <span class="sr-only"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="completed-part" class="content fs-3" style="margin-top: 50px;" role="tabpanel"
+                    aria-labelledby="completed-part-trigger">
+                    Congratulations <span id="valueToPresent" style="color: orange;"></span>, your identity successfully
+                    verified.
+                    Your manager will contact you soon and provide you with guidance how to proceed.
+
+                    <div class="text-center fs-1" style="margin-top: 20px;">
+                        <i class="bi bi-emoji-smile"></i>
                     </div>
                 </div>
             </div>
-
-            <div id="completed-part" class="content fs-3" style="margin-top: 50px;" role="tabpanel"
-                aria-labelledby="completed-part-trigger">
-                Congratulations <span id="valueToPresent" style="color: orange;"></span>, your identity successfully verified.
-                Your manager will contact you soon and provide you with guidance how to proceed. 
-
-                <div class="text-center fs-1" style="margin-top: 20px;">
-                    <i class="bi bi-emoji-smile"></i>
-                </div>
-            </div>
         </div>
     </div>
-</div>
 
-<!--Technical details section-->
-<p>
-    <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-        data-bs-toggle="collapse" href="#collapseTechnicalDetails" role="button" aria-expanded="false"
-        aria-controls="collapseTechnicalDetails">
-        Show the technical details
-    </a>
-</p>
+    <!--Technical details section-->
+    <p>
+        <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            data-bs-toggle="collapse" href="#collapseTechnicalDetails" role="button" aria-expanded="false"
+            aria-controls="collapseTechnicalDetails">
+            Show the technical details
+        </a>
+    </p>
 
-<div class="collapse" id="collapseTechnicalDetails">
-    <div class="card card-body">
-        <h2>Request</h2>
-        <div id="requestPayload">Waiting...</div>
+    <div class="collapse" id="collapseTechnicalDetails">
+        <div class="card card-body">
+            <h2>Request</h2>
+            <div id="requestPayload">Waiting...</div>
 
-        <h2 style="margin-top: 50px;">Response</h2>
-        <div id="responseBody">Waiting...</div>
+            <h2 style="margin-top: 50px;">Response</h2>
+            <div id="responseBody">Waiting...</div>
 
-        <h2 style="margin-top: 50px;">Notifications</h2>
-        <div id="CallbackJsonPayload">Waiting...</div>
+            <h2 style="margin-top: 50px;">Notifications</h2>
+            <div id="CallbackJsonPayload">Waiting...</div>
 
-        <h2 style="margin-top: 50px;">Claims</h2>
-        <div id="content">Waiting...</div>
+            <h2 style="margin-top: 50px;">Claims</h2>
+            <div id="content">Waiting...</div>
+        </div>
     </div>
-</div>
 
+}
 
 @section Scripts
 {
-    <!-- https://github.com/Johann-S/bs-stepper -->
-    <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script>
+    @if (string.IsNullOrEmpty(Model.Error))
+    {
+        <!-- https://github.com/Johann-S/bs-stepper -->
+        <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script>
 
-    <script>
-        var stepper;
+        <script>
+            var stepper;
 
-        $(document).ready(function () {
+            $(document).ready(function () {
 
-            stepper = new Stepper($('.bs-stepper')[0]);
+                stepper = new Stepper($('.bs-stepper')[0]);
 
-        })
+            })
 
-        // Call the demo Woodgrove demo issuance RSET API 
-        function startPresentation() {
+            // Call the demo Woodgrove demo issuance RSET API 
+            function startPresentation() {
 
-            // Show the spinner
-            $("#startDemoSpinner").show();
-            $("#errorArea").hide();
+                // Show the spinner
+                $("#startDemoSpinner").show();
+                $("#errorArea").hide();
 
-            // Call the Woodgrove demo API
-            $.ajax({
-                type: 'Get',
-                url: '/api/Present',
-                success: function (data) {
-                    handleApiResponse(data);
-                }
-            });
-        }
+                // Get the JWT token
+                var urlParams = new URLSearchParams(window.location.search);
+                token = urlParams.get('token')
 
-        function handleApiResponse(data) {
+                // Call the Woodgrove demo API
+                $.ajax({
+                    type: 'Get',
+                    url: '/api/Present?token=' + token,
+                    success: function (data) {
+                        handleApiResponse(data);
+                    }
+                });
+            }
 
-            // Render the HTTP request and response
-            $("#requestContent").show();
-            $("#requestPayload").html(data.requestPayload);
-            $("#responseBody").html(data.responseBody);
+            function handleApiResponse(data) {
 
-            // Stop the spinner
-            $("#startDemoSpinner").hide();
+                // Render the HTTP request and response
+                $("#requestContent").show();
+                $("#requestPayload").html(data.requestPayload);
+                $("#responseBody").html(data.responseBody);
 
-            if (data.errorMessage != "") {
-                // Show the error message
-                if (data.errorUserMessage = "") {
-                    $("#errorUserMessage").html(data.errorMessage);
+                // Stop the spinner
+                $("#startDemoSpinner").hide();
+
+                if (data.errorMessage != "") {
+                    // Show the error message
+                    if (data.errorUserMessage = "") {
+                        $("#errorUserMessage").html(data.errorMessage);
+                    }
+                    else {
+                        $("#errorUserMessage").html(data.errorUserMessage);
+                        $("#errorMessage").html(data.errorMessage);
+                    }
+
+                    $("#errorArea").show();
                 }
                 else {
-                    $("#errorUserMessage").html(data.errorUserMessage);
-                    $("#errorMessage").html(data.errorMessage);
-                }
+                    // No error, initiate the QR code
+                    $("#qrcode").html("") //Clear it first 
 
-                $("#errorArea").show();
+                    $("#targetUrl").attr("href", data.qrCodeUrl);
+                    var qrcode = new QRCode("qrcode", { width: 250, height: 250 });
+                    qrcode.makeCode(data.qrCodeUrl);
+
+                    // Render the PIN code (if exists)
+                    if ($("#pinCode").length > 0) {
+                        $("#pinCode").html(data.pinCode);
+                    }
+
+                    // Move to the next step
+                    stepper.next();
+
+                    // Start to check the callback endpoint status
+                    startStatusIntervals();
+                }
             }
-            else {
-                // No error, initiate the QR code
-                $("#qrcode").html("") //Clear it first 
 
-                $("#targetUrl").attr("href", data.qrCodeUrl);
-                var qrcode = new QRCode("qrcode", { width: 250, height: 250 });
-                qrcode.makeCode(data.qrCodeUrl);
-
-                // Render the PIN code (if exists)
-                if ($("#pinCode").length > 0) {
-                    $("#pinCode").html(data.pinCode);
-                }
-
-                // Move to the next step
-                stepper.next();
-
-                // Start to check the callback endpoint status
-                startStatusIntervals();
+            function startStatusIntervals() {
+                statusInterval = setInterval(checkStatus, 2000);
             }
-        }
+        </script>
 
-        function startStatusIntervals() {
-            statusInterval = setInterval(checkStatus, 2000);
-        }
-    </script>
+        <script>
+            var statusInterval = 0;
+            var waitForUserAction = false;
+            var completed = false;
+            var lastID = "";
 
-    <script>
-        var statusInterval = 0;
-        var waitForUserAction = false;
-        var completed = false;
-        var lastID = "";
+            function checkStatus() {
+                $.get("/api/status", function (data) {
 
-        function checkStatus() {
-            $.get("/api/status", function (data) {
-
-                if (lastID === data.id) {
-                    return;
-                }
-
-                // Update the last ID
-                lastID = data.id;
-
-                // Log the data to the console
-                console.log(data);
-
-                // Show the raw data return to the call back endpoint
-                if (data.history) {
-                    var html = "";
-                    for (const element of data.history) {
-                        html += '<h4>' + element.message + '</h4><p>' + element.timing + "</p><code  style='margin-bottom: 25px; display: block;'>" + element.payload + "</code>";
+                    if (lastID === data.id) {
+                        return;
                     }
 
-                    $("#CallbackJsonPayload").html(html)
-                }
+                    // Update the last ID
+                    lastID = data.id;
 
-                // Show the timing
-                //$("#Timing").html(data.timing.toString().replace(/,/g, '<br>'));
+                    // Log the data to the console
+                    console.log(data);
 
-                // Stop the interval and take the user to the presentation page
-                if (data.requestStatus == "issuance_successful") {
-
-                    window.clearInterval(statusInterval);
-
-                    // Show the complete step
-                    if (typeof stepper !== 'undefined' && completed == false) {
-                        completed = true;
-                        stepper.next();
-                    }
-                }
-
-                else if (data.requestStatus == "request_retrieved") {
-                    // The QR code was successfully scanned
-                    if (typeof stepper !== 'undefined' && waitForUserAction == false) {
-                        waitForUserAction = true;
-                        stepper.next();
-                    }
-                }
-
-                else if (data.requestStatus == "issuance_error") {
-                    // There was an error issuing the credential 
-                    window.clearInterval(statusInterval);
-
-                    var jsonPayload = JSON.parse(data.jsonPayload);
-
-                    // Show the error message
-                    $("#errorUserMessage").html(jsonPayload.error.message);
-                    $("#errorMessage").html(jsonPayload.error.code);
-                    $("#errorArea").show();
-                }
-
-                else if (data.requestStatus == "presentation_verified") {
-                    window.clearInterval(statusInterval);
-
-                    // Show the complete step
-                    if (typeof stepper !== 'undefined' && completed == false) {
-                        completed = true;
-                        stepper.next();
-                    }
-
-                    // Instead of showing the next step, call the complete function on the page
-                    if ($("#completFunction").length > 0) {
-                        completFunction();
-                    }
-
-                    // Show the claims
-                    var jsonPayload = JSON.parse(data.jsonPayload);
-                    var html = `<table class="table table-hover">
-                                                <thead>
-                                                <tr>
-                                                    <th>Claim</th>
-                                                    <th>Value</th>
-                                                    <th>Type</th>
-                                                    <th>Issuer</th>
-                                                </tr>
-                                                </thead><tbody>`
-
-                    if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
-
-                        for (let vc = 0; vc < jsonPayload.verifiedCredentialsData.length; vc++) {
-
-                            // Get the VC types
-                            var VcType = jsonPayload.verifiedCredentialsData[vc].type.toString().replace(',', ', ');
-
-                            // Iterate through the claims
-                            Object.keys(jsonPayload.verifiedCredentialsData[vc].claims).forEach(function (key) {
-
-                                var style = "";
-                                if (jsonPayload.verifiedCredentialsData[vc].claims[key].length > 70) {
-                                    // Prevent page scrolling for large texts
-                                    style = " style='overflow: auto; display: inline-block; max-width: 400px;'"
-                                }
-
-                                html += "<tr><td>" + key + "</td><td " + style + ">" + jsonPayload.verifiedCredentialsData[vc].claims[key] + "</td><td>" + VcType + "</td>" + "</td><td>" + jsonPayload.verifiedCredentialsData[vc].domainValidation.url + "</td></tr>";
-
-                                if (key == 'name' || key == 'firstName' || key == 'displayName') {
-                                    // Show the fisrt name or display name
-                                    if ($("#valueToPresent").length > 0) {
-                                        $("#valueToPresent").html(jsonPayload.verifiedCredentialsData[vc].claims[key]);
-                                    }
-                                }
-                                else if (key == 'id') {
-                                    // Show other important claim, for example the card ID
-                                    if ($("#secondValueToPresent").length > 0) {
-                                        $("#secondValueToPresent").html(jsonPayload.verifiedCredentialsData[vc].claims[key]);
-                                    }
-                                }
-                            })
+                    // Show the raw data return to the call back endpoint
+                    if (data.history) {
+                        var html = "";
+                        for (const element of data.history) {
+                            html += '<h4>' + element.message + '</h4><p>' + element.timing + "</p><code  style='margin-bottom: 25px; display: block;'>" + element.payload + "</code>";
                         }
 
-                        html += "</tbody></table>";
-                        $("#content").html(html)
-                        $("#contentContainer").show();
+                        $("#CallbackJsonPayload").html(html)
                     }
-                }
-                else if (data.requestStatus == "presentation_error") {
-                    // There was an error presenting the credential 
-                    window.clearInterval(statusInterval);
 
-                    var jsonPayload = JSON.parse(data.jsonPayload);
+                    // Show the timing
+                    //$("#Timing").html(data.timing.toString().replace(/,/g, '<br>'));
 
-                    // Show the error message
-                    $("#errorUserMessage").html(jsonPayload.error.message);
-                    $("#errorMessage").html(jsonPayload.error.code);
-                    $("#errorArea").show();
+                    // Stop the interval and take the user to the presentation page
+                    if (data.requestStatus == "issuance_successful") {
 
-                    if (jsonPayload.error.message.includes("is revoked")) {
-                        // Show a user friendly error that the credential was revoked
-                        $("#presentationCompleted").hide();
-                        $("#credentialIsRevoked").show();
-                        stepper.next();
+                        window.clearInterval(statusInterval);
+
+                        // Show the complete step
+                        if (typeof stepper !== 'undefined' && completed == false) {
+                            completed = true;
+                            stepper.next();
+                        }
                     }
-                }
-            });
-        } 
-    </script>
+
+                    else if (data.requestStatus == "request_retrieved") {
+                        // The QR code was successfully scanned
+                        if (typeof stepper !== 'undefined' && waitForUserAction == false) {
+                            waitForUserAction = true;
+                            stepper.next();
+                        }
+                    }
+
+                    else if (data.requestStatus == "issuance_error") {
+                        // There was an error issuing the credential 
+                        window.clearInterval(statusInterval);
+
+                        var jsonPayload = JSON.parse(data.jsonPayload);
+
+                        // Show the error message
+                        $("#errorUserMessage").html(jsonPayload.error.message);
+                        $("#errorMessage").html(jsonPayload.error.code);
+                        $("#errorArea").show();
+                    }
+
+                    else if (data.requestStatus == "presentation_verified") {
+                        window.clearInterval(statusInterval);
+
+                        // Show the complete step
+                        if (typeof stepper !== 'undefined' && completed == false) {
+                            completed = true;
+                            stepper.next();
+                        }
+
+                        // Instead of showing the next step, call the complete function on the page
+                        if ($("#completFunction").length > 0) {
+                            completFunction();
+                        }
+
+                        // Show the claims
+                        var jsonPayload = JSON.parse(data.jsonPayload);
+                        var html = `<table class="table table-hover">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Claim</th>
+                                                                        <th>Value</th>
+                                                                        <th>Type</th>
+                                                                        <th>Issuer</th>
+                                                                    </tr>
+                                                                    </thead><tbody>`
+
+                        if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
+
+                            for (let vc = 0; vc < jsonPayload.verifiedCredentialsData.length; vc++) {
+
+                                // Get the VC types
+                                var VcType = jsonPayload.verifiedCredentialsData[vc].type.toString().replace(',', ', ');
+
+                                // Iterate through the claims
+                                Object.keys(jsonPayload.verifiedCredentialsData[vc].claims).forEach(function (key) {
+
+                                    var style = "";
+                                    if (jsonPayload.verifiedCredentialsData[vc].claims[key].length > 70) {
+                                        // Prevent page scrolling for large texts
+                                        style = " style='overflow: auto; display: inline-block; max-width: 400px;'"
+                                    }
+
+                                    html += "<tr><td>" + key + "</td><td " + style + ">" + jsonPayload.verifiedCredentialsData[vc].claims[key] + "</td><td>" + VcType + "</td>" + "</td><td>" + jsonPayload.verifiedCredentialsData[vc].domainValidation.url + "</td></tr>";
+
+                                    if (key == 'name' || key == 'firstName' || key == 'displayName') {
+                                        // Show the fisrt name or display name
+                                        if ($("#valueToPresent").length > 0) {
+                                            $("#valueToPresent").html(jsonPayload.verifiedCredentialsData[vc].claims[key]);
+                                        }
+                                    }
+                                    else if (key == 'id') {
+                                        // Show other important claim, for example the card ID
+                                        if ($("#secondValueToPresent").length > 0) {
+                                            $("#secondValueToPresent").html(jsonPayload.verifiedCredentialsData[vc].claims[key]);
+                                        }
+                                    }
+                                })
+                            }
+
+                            html += "</tbody></table>";
+                            $("#content").html(html)
+                            $("#contentContainer").show();
+                        }
+                    }
+                    else if (data.requestStatus == "presentation_error") {
+                        // There was an error presenting the credential 
+                        window.clearInterval(statusInterval);
+
+                        var jsonPayload = JSON.parse(data.jsonPayload);
+
+                        // Show the error message
+                        $("#errorUserMessage").html(jsonPayload.error.message);
+                        $("#errorMessage").html(jsonPayload.error.code);
+                        $("#errorArea").show();
+
+                        if (jsonPayload.error.message.includes("is revoked")) {
+                            // Show a user friendly error that the credential was revoked
+                            $("#presentationCompleted").hide();
+                            $("#credentialIsRevoked").show();
+                            stepper.next();
+                        }
+                    }
+                });
+            } 
+        </script>
+    }
 }
