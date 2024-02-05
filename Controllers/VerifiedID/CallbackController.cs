@@ -17,6 +17,9 @@ using woodgrove_portal.Helpers;
 using woodgrove_portal.Controllers;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
+using woodgrove_portal.Models;
+using System.Threading;
+using System;
 
 namespace WoodgroveDemo.Controllers;
 
@@ -30,7 +33,6 @@ public class CallbackController : ControllerBase
     private IMemoryCache _cache;
     protected readonly ILogger<CallbackController> _log;
     private readonly GraphServiceClient _graphServiceClient;
-
 
     public CallbackController(TelemetryClient telemetry, IConfiguration configuration, IMemoryCache cache, ILogger<CallbackController> log, GraphServiceClient graphServiceClient)
     {
@@ -125,16 +127,10 @@ public class CallbackController : ControllerBase
                 // Note, this code is relevant only to the gift card demo
                 if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED && usersCache != null)
                 {
-                    usersCache.Status = "Verified";
+                    usersCache.Status = UserStatus.Verified;
                     usersCache.StatusTime = DateTime.UtcNow;
 
-                    string TAP = await this.GenerateTAP(callback, usersCache.UPN.Split("@")[1]);
-
-                    // Don't wait for the email to be sent
-                    Invite.SendTapAsync(_configuration, Request, usersCache.Email, TAP);
-
                     _cache.Set(usersCache.ID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
-
                 }
 
                 // Add the status object to the ceche
@@ -166,61 +162,6 @@ public class CallbackController : ControllerBase
         {
             return ErrorHandling(eventTelemetry, ex.Message, true, state);
         }
-    }
-
-    private async Task<string> GenerateTAP(CallbackEvent callback, string domain)
-    {
-        try
-        {
-            var scopes = new[] { "https://graph.microsoft.com/.default" };
-
-            X509Certificate2 clientCertificate = MsalAccessTokenHandler.ReadCertificate(_configuration.GetSection("AzureAd:ClientCertificates:0:CertificateThumbprint").Value);
-
-            // using Azure.Identity;
-            var options = new ClientCertificateCredentialOptions
-            {
-                AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
-            };
-
-
-            // https://learn.microsoft.com/dotnet/api/azure.identity.clientcertificatecredential
-            var clientCertCredential = new ClientCertificateCredential(
-                domain, // This is the user's tenant ID
-                _configuration.GetSection("AzureAd:ClientId").Value, clientCertificate, options);
-
-            var graphClient = new GraphServiceClient(clientCertCredential, scopes);
-
-            // Try to get the existing TAP
-            string userObjectID = callback.state.Split("|")[0];
-            // var existingTap = graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.GetAsync();
-
-            // if (existingTap != null && existingTap.Result != null && existingTap.Result != null && existingTap!.Result!.Value!.Count > 1)
-            // {
-            //     foreach (var eTap in existingTap.Result.Value)
-            //     {
-            //         // Delete any old TAPs so we can create a new one
-            //         await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods[eTap.Id].DeleteAsync();
-            //     }
-            // }
-
-            // Create a new TAP code
-            // https://learn.microsoft.com/graph/api/authentication-post-temporaryaccesspassmethods
-            var requestBody = new TemporaryAccessPassAuthenticationMethod
-            {
-                LifetimeInMinutes = 60,
-                IsUsableOnce = true,
-            };
-
-            var tap = await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
-
-            // Return the TAP
-            return tap.TemporaryAccessPass;
-        }
-        catch (System.Exception ex)
-        {
-            throw;
-        }
-
     }
 
     private BadRequestObjectResult ErrorHandling(EventTelemetry eventTelemetry, string errorMessage, bool internl, string state, string requestStatus = "")

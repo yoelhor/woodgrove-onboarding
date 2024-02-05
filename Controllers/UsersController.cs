@@ -357,4 +357,97 @@ public class UsersController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    [HttpGet("/api/users/usertap")]
+    public async Task<IActionResult> GetUserTapAsync()
+    {
+        try
+        {
+
+            // Get the current user's state ID from the user's session
+            string state = this.HttpContext.Session.GetString("state");
+
+            // If the state object was not found, return an error message
+            if (string.IsNullOrEmpty(state))
+            {
+                return BadRequest(new { error = "Cannot find the state object." });
+            }
+
+            // Try to read the request status object from the global cache using the state ID key
+            WoodgroveDemo.Models.Status status = null;
+            if (_cache.TryGetValue(state, out string requestState))
+            {
+                status = WoodgroveDemo.Models.Status.Parse(requestState);
+            }
+            else
+            {
+                return BadRequest(new { error = "Cannot find the Verified ID state object." });
+            }
+
+            // Get the user's status object from the ceche.
+            UsersCache usersCache = null;
+            string userObjectID = status.RequestStateId.Split("|")[0];
+            if (_cache.TryGetValue(userObjectID, out string cacheValue))
+            {
+                usersCache = UsersCache.Parse(cacheValue);
+            }
+
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
+
+            X509Certificate2 clientCertificate = MsalAccessTokenHandler.ReadCertificate(_configuration.GetSection("AzureAd:ClientCertificates:0:CertificateThumbprint").Value);
+
+            // using Azure.Identity;
+            var options = new ClientCertificateCredentialOptions
+            {
+                AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+            };
+
+
+            // https://learn.microsoft.com/dotnet/api/azure.identity.clientcertificatecredential
+            var clientCertCredential = new ClientCertificateCredential(
+                usersCache.UPN.Split("@")[1], // This is the user's tenant ID
+                _configuration.GetSection("AzureAd:ClientId").Value, clientCertificate, options);
+
+            var graphClient = new GraphServiceClient(clientCertCredential, scopes);
+
+            // Try to get the existing TAP
+            var existingTap = await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.GetAsync();
+
+            if (existingTap != null && existingTap.Value != null && existingTap!.Value!.Count > 1)
+            {
+                foreach (var eTap in existingTap.Value)
+                {
+                    // Delete any old TAPs so we can create a new one
+                    await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods[eTap.Id].DeleteAsync();
+                }
+            }
+
+            // Create a new TAP code
+            // https://learn.microsoft.com/graph/api/authentication-post-temporaryaccesspassmethods
+            var requestBody = new TemporaryAccessPassAuthenticationMethod
+            {
+                LifetimeInMinutes = 60,
+                IsUsableOnce = true,
+            };
+
+            var tap = await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
+
+            // Don't wait for the email to be sent
+            await Invite.SendTapAsync(_configuration, Request, usersCache.Email, tap.TemporaryAccessPass);
+
+            // Update the cache that the process successfully completed
+            usersCache.Status = UserStatus.Completed;
+            usersCache.StatusTime = DateTime.UtcNow;
+            _cache.Set(usersCache.ID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
+
+            // Retrun the TAP
+            return Ok(new { tap = tap.TemporaryAccessPass });
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+
+
+    }
 }

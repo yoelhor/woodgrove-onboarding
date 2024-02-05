@@ -134,10 +134,27 @@ else
                     aria-labelledby="completed-part-trigger">
                     Congratulations <span id="valueToPresent" style="color: orange;"></span>, your identity successfully
                     verified.
-                    Your manager will contact you soon and provide you with guidance how to proceed.
+                    <span id="preparing">We are preparing your account, please wait (it usually takes upto one minute).</span>
 
-                    <div class="text-center fs-1" style="margin-top: 20px;">
-                        <i class="bi bi-emoji-smile"></i>
+                    <div class="text-center fs-1" style="margin-top: 20px;" id="spinner">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="tapContainer" style="display: none; margin-top: 20px;"  class="fs-5">
+
+                        Your account is ready. Please follow these steps:
+                        <ol>
+                            <li><a href='https://aka.ms/sspr'>Reset your password</a>. On the password reset page use the
+                                following access pass <span style="background-color: #ebebeb;" id="tap"></span>
+                            </li>
+                            <li>Go to <a href='https://www.microsoft365.com'>M365 portal</a> and upload a photo of yourself.
+                            </li>
+                            <li>In <a href='https://myaccount.microsoft.com'>MyAccount</a>, issue yourself a
+                                VerifiedEmployee Verified ID credential.</li>
+                            <li>Go to <a href='https://myapplications.microsoft.com'>MyApplications</a> to find applications
+                                to use.</li>
+                            <ol>
                     </div>
                 </div>
             </div>
@@ -323,6 +340,8 @@ else
                     else if (data.requestStatus == "presentation_verified") {
                         window.clearInterval(statusInterval);
 
+                        getTap();
+
                         // Show the complete step
                         if (typeof stepper !== 'undefined' && completed == false) {
                             completed = true;
@@ -337,14 +356,14 @@ else
                         // Show the claims
                         var jsonPayload = JSON.parse(data.jsonPayload);
                         var html = `<table class="table table-hover">
-                                                                    <thead>
-                                                                    <tr>
-                                                                        <th>Claim</th>
-                                                                        <th>Value</th>
-                                                                        <th>Type</th>
-                                                                        <th>Issuer</th>
-                                                                    </tr>
-                                                                    </thead><tbody>`
+                                                                                                    <thead>
+                                                                                                    <tr>
+                                                                                                        <th>Claim</th>
+                                                                                                        <th>Value</th>
+                                                                                                        <th>Type</th>
+                                                                                                        <th>Issuer</th>
+                                                                                                    </tr>
+                                                                                                    </thead><tbody>`
 
                         if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
 
@@ -403,7 +422,31 @@ else
                         }
                     }
                 });
-            } 
+            }
+
+            function getTap() {
+
+
+                $.ajax({
+                    url: "/api/users/usertap",
+                    success: function (result) {
+
+                        console.log(result);
+                        $('#tapContainer').show();
+                        $('#spinner').hide();
+                        $('#preparing').hide();
+                        $('#tap').text(result.tap);
+                    }
+                }).fail(function (response) {
+                    console.log("TAP error")
+                    console.log(response)
+
+                    // TBD: error message
+                    //$('#updateEmployeeAlert').show();
+                    //$('#updateEmployeeAlertMessage').text(response.responseJSON.error);
+
+                });
+            }
         </script>
     }
 }
