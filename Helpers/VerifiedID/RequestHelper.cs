@@ -36,9 +36,7 @@ public class RequestHelper
     public static PresentationRequest CreatePresentationRequest(
             Settings settings,
             HttpRequest httpRequest,
-            string state,
-            string[] acceptedIssuers = null,
-            bool faceCheck = false)
+            string state)
     {
         PresentationRequest request = new PresentationRequest()
         {
@@ -52,7 +50,7 @@ public class RequestHelper
             callback = new Models.Presentation.Callback()
             {
                 url = settings.Api.URL(httpRequest),
-                state = state + "|" +  Guid.NewGuid().ToString(),
+                state = state + "|" + Guid.NewGuid().ToString(),
                 headers = new Dictionary<string, string>() { { "api-key", settings.Api.ApiKey } }
             },
             includeReceipt = settings.UX.IncludeReceipt,
@@ -63,18 +61,11 @@ public class RequestHelper
             request.registration.purpose = null;
         }
 
-        List<string> okIssuers;
-        if (acceptedIssuers == null)
-        {
-            okIssuers = new List<string>(settings.EntraID.AcceptedIssuers.Split(","));
-        }
-        else
-        {
-            okIssuers = new List<string>(acceptedIssuers);
-        }
+        List<string> okIssuers = new List<string>(settings.EntraID.AcceptedIssuers.Split(","));
+
         bool allowRevoked = settings.UX.AllowRevoked;
         bool validateLinkedDomain = settings.UX.ValidateLinkedDomain;
-        AddRequestedCredential(request, settings.CredentialType, okIssuers, allowRevoked, validateLinkedDomain, faceCheck);
+        AddRequestedCredential(request, settings.CredentialType, okIssuers, allowRevoked, validateLinkedDomain);
         return request;
     }
 
@@ -82,8 +73,7 @@ public class RequestHelper
                     string credentialType,
                     List<string> acceptedIssuers,
                     bool allowRevoked = false,
-                    bool validateLinkedDomain = true,
-                    bool faceCheck = false)
+                    bool validateLinkedDomain = true)
     {
         request.requestedCredentials.Add(new RequestedCredential()
         {
@@ -100,19 +90,11 @@ public class RequestHelper
         });
 
         // Face check validation
-        if (faceCheck)
-        {
-            // Receipt is not supported while doing faceCheck
-            request.includeReceipt = false;
-
-            request.requestedCredentials[0].configuration.validation.faceCheck = new FaceCheck()
-            {
-                sourcePhotoClaimName = "photo",
-                matchConfidenceThreshold = 70
-            };
-        }
-
-
+        // request.requestedCredentials[0].configuration.validation.faceCheck = new FaceCheck()
+        // {
+        //     sourcePhotoClaimName = "photo",
+        //     matchConfidenceThreshold = 2
+        // };
 
         return request;
     }

@@ -1,7 +1,26 @@
 ﻿@page
 @model woodgrove_portal.Pages.UsersModel
 @{
-    <h1>Users</h1>
+    ViewData["Title"] = "Users management";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (User.Identity?.IsAuthenticated == false)
+{
+    <div class="container py-4 fs-4">
+
+        <i class="bi bi-info-square-fill"></i> In this demo, you as a manager create the new hire an account in your tenant.
+        To add, delete or update users, you must be a User Administrator or Global Administrator role in your tenanat.
+
+        <p class=" py-4">
+            To start the demo, <a href='/MicrosoftIdentity/Account/SignIn'>sign-in</a> with your Microsoft Entra ID account.
+        </p>
+    </div>
+}
+else
+{
+
     <div style="display: none;" id="domain">@Model.DomainName</div>
     <div class="row" style="margin-top: 50px;">
 
@@ -48,7 +67,7 @@
         <span class="visually-hidden">Loading...</span>
     </div>
     <br>
-    <a href="#" id="nextPage" style="display: none;">Load more</a>
+    <a href="#" id="nextPage" style="display: none;" class="link-primary  link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Load more...</a>
 
 
     <div class="modal" tabindex="-1" id="newUserModal">

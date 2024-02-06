@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
+using woodgrove_portal.Controllers;
 
 namespace woodgrove_portal.Pages
 {
@@ -19,17 +20,39 @@ namespace woodgrove_portal.Pages
 
         public void OnGet()
         {
+            string domainName = string.Empty;
+
+            if (User.Identity!.IsAuthenticated && @User.Identity?.Name.Split("@").Length == 2)
+            {
+                domainName = User.Identity?.Name.Split("@")[1];
+            }
+            else
+            {
+                return;
+            }
+
             var keys = GetCacheKeys();
 
             foreach (var key in keys)
             {
                 if (_cache.TryGetValue(key, out string cacheValue))
                 {
-                    Items.Add(cacheValue);
+                    try
+                    {
+                        UsersCache usersCache = UsersCache.Parse(cacheValue);
+
+                        if (string.IsNullOrEmpty(usersCache.UPN) == false && usersCache.UPN.Split("@").Length == 2 && usersCache.UPN.Split("@")[1] == domainName)
+                        {
+                            Items.Add(cacheValue);
+                        }
+
+                    }
+                    catch (System.Exception)
+                    {
+
+                    }
                 }
-
             }
-
         }
 
         private List<string> GetCacheKeys()

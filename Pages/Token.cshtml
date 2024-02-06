@@ -1,7 +1,11 @@
 ﻿@page
 @model woodgrove_portal.Pages.TokenModel
 @{
+    ViewData["Title"] = "Security tokan";
 }
+
+<h1 class="py-2">Your security token</h1>
+
 
 <table class="table table-striped">
     <thead>
@@ -11,8 +15,6 @@
         </tr>
     </thead>
     <tbody>
-
-
         @foreach (var claim in User.Claims)
         {
             <tr>
