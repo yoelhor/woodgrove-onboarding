@@ -1,0 +1,45 @@
+﻿@page
+@model woodgrove_portal.Pages.HelpModel
+@{
+    ViewData["Title"] = "Help";
+}
+
+<h1 class="py-2">Learn how to run this demo</h1>
+
+<h2 style="margin-top: 35px;">Manager flow</h2>
+
+<p style="margin-top: 15px;">
+    A manager Settings to this portal and selects the <a href="/users">users</a> for new employee onboarding.
+    The manager can select a user from a list, or create a new one. The following screenshot shows the users in the
+    Contoso directory.<br>
+</p>
+
+
+<img src="~/images/Settings/users-list.png" class="img-fluid border">
+
+<p style="margin-top: 35px;">
+    When a new employee account is created, or when a manager selects an existing user and send an invite, the new hire
+    will be provided
+    with a uniquely identifiable link to the employee <a href="/Onboarding">onboarding page</a>. This page represents
+    the new hire’s account activation.
+
+    The following screenshot shows how to send an invite to existing users.<br>
+</p>
+
+<img src="~/images/Settings/invite.png" class="img-fluid border" style="width: 400px;">
+
+<h2 style="margin-top: 35px;">User flow</h2>
+
+<ol>
+    <li>The new hires open the invite email sent to them, then select the link to the employee onboarding page and are
+        guided through a wizard-like experience.</li>
+    <li>New Hires are redirected to acquire a verified ID from the Identity verification partner (also referred to IDV.
+        To learn more about the identity verification partners: https://aka.ms/verifiedidisv</li>
+    <li>New Hires present the Verified ID acquired in Step 2</li>
+    <li>This live demo app receives the claims from identity verification partner, looks up the user account for the new hire and
+        performs the validation.</li>
+    <li>This live demo app executes the onboarding logic to locate the Microsoft Entra account of the user, and generate a temporary
+        access
+        pass which presents to the user and sent by email.</li>
+    <li>The new hires need to following the guidance how to reset their password.</li>
+</ol>

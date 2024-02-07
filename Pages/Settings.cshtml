@@ -1,0 +1,62 @@
+﻿@page
+@model woodgrove_portal.Pages.SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h1 class="py-2">Learn how to prepare your environment to run the demo</h1>
+
+<h2 style="margin-top: 35px;;">1. Configure Temporary Access Pass in Microsoft Entra ID</h2>
+A Temporary Access Pass is a time-limited passcode that can be configured for single use or multiple. Users can sign in
+with a Temporary Access Pass to onboard other authentication methods including passwordless methods such as Microsoft
+Authenticator, FIDO2 or Windows Hello for Business. Follow the guidance how to <a
+    href="https://learn.microsoft.com/entra/identity/authentication/howto-authentication-temporary-access-pass"
+    target="_blank">Enable
+    the Temporary Access Pass policy</a>
+
+<p style="margin-top: 15px;">
+    The following image shows how to configure Temporary Access Pass<br>
+    <img src="~/images/Settings/tap.png" class="img-fluid border">
+</p>
+
+<h2 style="margin-top: 35px;;">2. Assign Microsoft Entra roles</h2>
+
+For this demo, you as a manager create the new hire an account in your tenant. To add, delete or update users, you must
+be a User Administrator or Global Administrator role in your tenanat. Follow the guidance how to <a
+    href="https://learn.microsoft.com/entra/identity/role-based-access-control/manage-roles-portals"
+    target="_blank">Assign Microsoft Entra roles to users</a> and add
+Make sure you have the following pemrmissions:
+
+<ul>
+    <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#global-administrator"
+            target="_blank">Global Administrator</a>, or the following pemrmissions</li>
+    <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#user-administrator"
+            target="_blank">User Administrator</a></li>
+    <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#authentication-policy-administrator"
+            target="_blank">Authentication Policy Administrator</a></li>
+    <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#groups-administrator"
+            target="_blank">Groups Administrator</a></li>
+</ul>
+
+<h2 style="margin-top: 35px;;">Admin Consent for Delegated Permissions</h2>
+This multi-tenant application requests delegated permissions that require your own tenant admin consent. The will
+receive an error message that
+says you are not unauthorized to consent to your app's permissions (unless you have the right pemrmissions). You are
+required to ask your admin for access to
+the app. If the admin grants consent for the entire tenant, the organization's users don't see a consent page for the
+application unless the previously granted permissions are revoked or the application requests for a new permission
+incrementally.
+
+<p style="margin-top: 15px;">
+    Find the <b>Woodgrove Portal</b> application in your Entra ID tenant. You and find it in the <b>Identity</b> >
+    <b>Applications</b> > <b>Enterprise applications</b> > <b>All applications</b>.
+    Then <a href="https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent?pivots=portal"
+        target="_blank">Grant tenant-wide admin consent to an application</a>, or <a
+        href="https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-consent-single-user?pivots=msgraph-powershell"
+        target="_blank">Grant consent on behalf of a single user by using PowerShell</a>
+</p>
+
+<p style="margin-top: 15px;">
+    The following image shows how to consent on behalf of the organization<br>
+    <img src="~/images/Settings/app-consent.png" class="img-fluid border">
+</p>

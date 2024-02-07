@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+
     <!--- Font ---->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,8 @@
 
 <body>
     <header>
-        <nav class="navbar navbar-dark bg-dark navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 wg-navbar">
+        <nav
+            class="navbar navbar-dark bg-dark navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 wg-navbar">
             <div class="container">
                 <img src="/images/logo.png" height="24" alt="Woodgrove logo" style="padding-right: 10px;" />
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Woodgrove portal</a>
@@ -31,10 +32,20 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item px-2">
-                            <a class="nav-link text-light" asp-area="" asp-page="/users"><i class="bi bi-people-fill" style="color: orange;"></i> Users</a>
+                            <a class="nav-link text-light" asp-area="" asp-page="/users"><i class="bi bi-people-fill"
+                                    style="color: orange;"></i> Users</a>
                         </li>
                         <li class="nav-item px-2">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Onboarding"><i class="bi bi-person-vcard" style="color: orange;"></i> Onboarding</a>
+                            <a class="nav-link text-light" asp-area="" asp-page="/Onboarding"><i
+                                    class="bi bi-person-vcard" style="color: orange;"></i> Onboarding</a>
+                        </li>
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-light" asp-area="" asp-page="/Help"><i class="bi bi-info-circle"
+                                    style="color: orange;"></i> Help</a>
+                        </li>
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-light" asp-area="" asp-page="/Settings"><i class="bi bi-gear"
+                                    style="color: orange;"></i> Settings</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
