@@ -37,8 +37,9 @@ else
     </div>
 
 
-    <div class="jumbotron wgu_jumbotron_demo" style="margin-top: 50px;">
-        <div class="bs-stepper vertical">
+    <div class="" style="margin-top: 50px;">
+        <div class="bs-stepper vertical border border-warning border-1"
+            style="border-radius: 20px; background-color: rgb(226, 226, 226); padding-top: 35px">
             <div class="bs-stepper-header" role="tablist">
                 <!-- your steps here -->
                 <div class="step" data-target="#intro-part">
@@ -76,50 +77,76 @@ else
             <div class="bs-stepper-content position-relative" style="width: 100%;">
                 <!-- Introdction step -->
                 <div id="intro-part" class="content fs-5" role="tabpanel" aria-labelledby="intro-part-trigger">
+                    <div class="row">
+                        <div class="col">
+                            <h3>Welcome @Model.DisplayName</h3>
+                            <p class="py-1">
+                                Congratulations on your new role! To activate your employee account you need to
+                                identify
+                                yourself with a <b>TrueID</b> card. The TrueID is fictitious identity verification provider
+                                we
+                                partnership
+                                to verify our new hires identity. You can also identify yourself with one of <a
+                                    href="https://learn.microsoft.com/entra/verified-id/partner-gallery"
+                                    class="link link-secondary" target="_blank">Microsoft Entra Verified ID IDV partners</a>
+                                cards.
+                                <br>
+                            </p>
 
-                    Welcome aboard new hire! This online demo will help you to create your identity account in your
-                    organization.
-                    To create your account you need to present your TrueID card. The TrueID is fictitious identity
-                    verification provider we partnership to verified our new hires identity.
-                    <br>
-                    <img style="padding-top: 25px; height: 200px;" alt="An example of TrueID card"
-                        src="https://woodgroveemployee.azurewebsites.net/assets/images/verification/true-id-card.png" />
+                            <img style="height: 200px;" class="py-2" alt="An example of TrueID card"
+                                src="https://woodgroveemployee.azurewebsites.net/assets/images/verification/true-id-card.png" />
 
-                    <p style="padding-top: 15px;">
-                        Do not have a TrueID card? click <a href="https://trueidentityinc.azurewebsites.net/"
-                            class="link-warning">here</a> to get one.
-                    </p>
+                        </div>
+                    </div>
 
-                    <div class="position-absolute bottom-0 end-0">
-                        <button class="btn btn-warning" onclick="startPresentation();">
-                            <span id="startDemoSpinner" style="display: none;" class="spinner-border spinner-border-sm"
-                                role="status" aria-hidden="true"></span> Start</button>
+                    <div class="row py-4">
+                        <div class="col">
+
+                            <i class="bi bi-question-circle-fill fs-3" style="color: green;"></i> Do not have a TrueID
+                            card? click <a href="https://trueidentityinc.azurewebsites.net/" class="link-success">here</a>
+                            to get one.
+
+                        </div>
+                        <div class="col-4">
+
+                            <button class="btn btn-warning" onclick="startPresentation();">
+                                <span id="startDemoSpinner" style="display: none;" class="spinner-border spinner-border-sm"
+                                    role="status" aria-hidden="true"></span> Activate your employee account</button>
+
+                        </div>
                     </div>
                 </div>
 
                 <div id="qrcode-part" class="content fs-5" role="tabpanel" aria-labelledby="qrcode-part-trigger">
-                    <p>
-                        Scan the QR code with your mobile phone.
-                    </p>
-                    <div class="">
-                        <div id="qrcode" class="align-self-center" style="display: inline-block;"></div>
+
+                    <div class="row">
+                        <div class="col">
+                            <h3>Scan the QR code</h3>
+                            <p class="py-1">
+                                Scan the QR code with your mobile phone.
+                            </p>
+                            <div class="">
+                                <div id="qrcode" class="align-self-center" style="display: inline-block;"></div>
+                            </div>
+
+
+                            <p class="fs-6" style="margin-top: 15px;">
+                                Run this demo on a
+                                mobile device?
+                                use <a id="targetUrl" class="link-primary" href=""> this
+                                    link</a>!
+                            </p>
+                        </div>
                     </div>
-
-
-                    <p class="fs-6" style="margin-top: 15px;">
-                        Run this demo on a
-                        mobile device?
-                        use <a id="targetUrl" class="link-warning" href=""> this
-                            link</a>!
-                    </p>
-
-                    <div class="position-absolute bottom-0 start-0">
-                        <button class="btn btn-secondary" onclick="stepper.previous()">Back</button>
+                    <div class="row">
+                        <div class="col"><button class="btn btn-secondary" onclick="stepper.previous()">Back</button>
+                        </div>
                     </div>
                 </div>
 
                 <div id="userAction-part" class="content fs-5" role="tabpanel" aria-labelledby="userAction-part-trigger">
-                    <p>
+                    <h3>Share the TrueID card with us</h3>
+                    <p class="py-1">
                         In the Microsoft Authenticator review the presentation request and share the TrueID card with us.
                     </p>
 
@@ -130,29 +157,38 @@ else
                     </div>
                 </div>
 
-                <div id="completed-part" class="content fs-3" style="margin-top: 50px;" role="tabpanel"
+                <div id="completed-part" class="content fs-3" role="tabpanel"
                     aria-labelledby="completed-part-trigger">
-                    Congratulations <span id="valueToPresent" style="color: orange;"></span>, your identity successfully
-                    verified.
-                    <span id="preparing">We are preparing your account, please wait (it usually takes less than a minute).</span>
 
+                    <h3>Activating your account</h3>
+                    <p class="py-1">
+
+                        Congratulations <span id="valueToPresent"></span>, your identity successfully
+                        verified.
+                        <span id="preparing">We are preparing your account, please wait (it usually takes less than a
+                            minute).</span>
+                    <p>
                     <div class="text-center fs-1" style="margin-top: 20px;" id="spinner">
                         <div class="spinner-border text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                    <div id="tapContainer" style="display: none; margin-top: 20px;"  class="fs-5">
+                    <div id="tapContainer" style="display: none; margin-top: 20px;" class="fs-5">
 
                         Your account is ready. Please follow these steps:
                         <ol>
-                            <li><a href='https://aka.ms/sspr'>Reset your password</a>. On the password reset page use the
+                            <li><a href='https://aka.ms/sspr' target="_blank" class="link">Reset your password</a>. On the
+                                password reset page use the
                                 following access pass <span style="background-color: #ebebeb;" id="tap"></span>
                             </li>
-                            <li>Go to <a href='https://www.microsoft365.com'>M365 portal</a> and upload a photo of yourself.
+                            <li>Go to <a href='https://www.microsoft365.com' target="_blank" class="link">M365 portal</a>
+                                and upload a photo of yourself.
                             </li>
-                            <li>In <a href='https://myaccount.microsoft.com'>MyAccount</a>, issue yourself a
+                            <li>In <a href='https://myaccount.microsoft.com' target="_blank" class="link">MyAccount</a>,
+                                issue yourself a
                                 VerifiedEmployee Verified ID credential.</li>
-                            <li>Go to <a href='https://myapplications.microsoft.com'>MyApplications</a> to find applications
+                            <li>Go to <a href='https://myapplications.microsoft.com' target="_blank"
+                                    class="link">MyApplications</a> to find applications
                                 to use.</li>
                             <ol>
                     </div>
@@ -356,14 +392,14 @@ else
                         // Show the claims
                         var jsonPayload = JSON.parse(data.jsonPayload);
                         var html = `<table class="table table-hover">
-                                                                                                    <thead>
-                                                                                                    <tr>
-                                                                                                        <th>Claim</th>
-                                                                                                        <th>Value</th>
-                                                                                                        <th>Type</th>
-                                                                                                        <th>Issuer</th>
-                                                                                                    </tr>
-                                                                                                    </thead><tbody>`
+                                                                                                                    <thead>
+                                                                                                                    <tr>
+                                                                                                                        <th>Claim</th>
+                                                                                                                        <th>Value</th>
+                                                                                                                        <th>Type</th>
+                                                                                                                        <th>Issuer</th>
+                                                                                                                    </tr>
+                                                                                                                    </thead><tbody>`
 
                         if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
 

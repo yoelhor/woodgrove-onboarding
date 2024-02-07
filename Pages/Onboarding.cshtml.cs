@@ -27,7 +27,8 @@ namespace woodgrove_portal.Pages
 
             try
             {
-                TokenValidation(_Configuration, token, _Cache);
+                UsersCache usersCache = TokenValidation(_Configuration, token, _Cache);
+                DisplayName = usersCache.DisplayName;
             }
             catch (Exception ex)
             {
@@ -61,6 +62,7 @@ namespace woodgrove_portal.Pages
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var oid = jwtToken.Claims.First(x => x.Type == "id").Value;
                 var session = jwtToken.Claims.First(x => x.Type == "session").Value;
+                
 
 
                 // return user id from JWT token if validation successful

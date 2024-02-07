@@ -62,7 +62,7 @@
 .bs-stepper-label {
     display: inline-block;
     margin: .25rem;
-    color: white;
+    color: black;
 }
 
 .bs-stepper-header {
@@ -125,7 +125,7 @@
 
 .bs-stepper-content {
     padding: 0 20px 20px;
-    height: 400px;
+    min-height: 450px;
 }
 
 @media (max-width:520px) {
