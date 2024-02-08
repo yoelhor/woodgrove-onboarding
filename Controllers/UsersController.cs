@@ -196,14 +196,15 @@ public class UsersController : ControllerBase
             }
 
             string session = Guid.NewGuid().ToString();
+
             // Send invite email
-            await Invite.SendInviteAsync(_configuration, this.Request, result!.Id!, result!.DisplayName!, result!.Mail!, session);
+            string link = await Invite.SendInviteAsync(_configuration, this.Request, result!.Id!, result!.DisplayName!, result!.Mail!, session);
 
             // Add the user to the cache  
-            await AddOrUpdateCacheAsync(result!.Id!, result!.UserPrincipalName, newUser.GivenName + " " + newUser.Surname, newUser.Email, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
+            await AddOrUpdateCacheAsync(result!.Id!, result!.UserPrincipalName, result!.DisplayName!, newUser.Email, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
             // Return the result
-            return Ok(result);
+            return Ok(new { link = link, email = newUser.Email });
         }
         catch (System.Exception ex)
         {
@@ -251,10 +252,10 @@ public class UsersController : ControllerBase
                 string link = await Invite.SendInviteAsync(_configuration, this.Request, user.Id, user.DisplayName, user.Mail, session);
 
                 // Add the user to the cache  
-                await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.GivenName + " " + user.Surname, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
+                await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.DisplayName, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
                 // Return the result
-                return Ok(new { link = link });
+                return Ok(new { link = link, email = user.Mail });
             }
 
             return BadRequest(new { error = "User not found" });
@@ -443,7 +444,7 @@ public class UsersController : ControllerBase
             _cache.Set(usersCache.ID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
 
             // Retrun the TAP
-            return Ok(new { tap = tap.TemporaryAccessPass, upn =  usersCache.UPN });
+            return Ok(new { tap = tap.TemporaryAccessPass, upn = usersCache.UPN });
         }
         catch (System.Exception ex)
         {

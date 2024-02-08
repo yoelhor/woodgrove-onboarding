@@ -282,7 +282,8 @@ else
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    The invite has been successfully sent to the user. For the demo you can also copy the link and use it directly in your browser.
+                    The invite has been successfully sent to <span id="sentTo"></span>. For the demo you can also copy the
+                    link and use it directly in your browser.
                 </div>
                 <div class="modal-footer">
 
@@ -378,10 +379,17 @@ else
             };
 
             // Submit the request
-            $.post("/api/users", payload, function (data) {
+            $.post("/api/users", payload, function (result) {
+                console.log("New account has successfully created.")
+                console.log(result)
 
                 // Hide the modal
                 newUserModal.hide();
+
+                inviteLink = result.link;
+                $('#sentTo').text(result.email)
+
+                inviteSentUserModal.show();
 
                 // Search the users again
                 getUsers(null, $('#inputSearch').val(), $('#inputSearchBy').val());
@@ -403,7 +411,10 @@ else
             $.ajax({
                 url: "/api/users?oid=" + oid,
                 success: function (result) {
+
+                    console.log("The account profile has successfully loaded.")
                     console.log(result);
+
                     if (result != null && result.users != null && result.users.length > 0) {
 
                         $("#detailsUPN").val(result.users[0].upn);
@@ -452,6 +463,10 @@ else
                 type: 'PATCH',
                 data: payload,
                 success: function (result) {
+
+                    console.log("The account profile has successfully updated.")
+                    console.log(result);
+
                     userDetailsModal.hide();
 
                     // Search the users again
@@ -486,6 +501,10 @@ else
                 url: "/api/users?oid=" + $("#detailsId").val(),
                 type: 'DELETE',
                 success: function (result) {
+
+                    console.log("The account has successfully deleted.")
+                    console.log(result);
+
                     deleteUserModal.hide();
 
                     // Search the users again
@@ -514,9 +533,11 @@ else
                 url: "/api/users/invite?oid=" + $("#detailsId").val(),
                 success: function (result) {
 
+                    console.log("An invite has successfully sent.")
                     console.log(result);
 
                     inviteLink = result.link;
+                    $('#sentTo').text(result.email)
                     disableDetailsButtons(false);
 
                     userDetailsModal.hide();
@@ -543,6 +564,9 @@ else
             $.ajax({
                 url: "/api/users/tap?oid=" + $("#detailsId").val(),
                 success: function (result) {
+
+                    console.log("A TAP has successfully generated and sent.")
+                    console.log(result);
 
                     disableDetailsButtons(false);
 
