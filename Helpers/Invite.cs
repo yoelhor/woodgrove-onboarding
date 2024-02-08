@@ -33,7 +33,7 @@ public class Invite
             email,
             subject,
             htmlContent);
-        
+
         return link;
     }
 
@@ -52,7 +52,7 @@ public class Invite
         return tokenHandler.WriteToken(token);
     }
 
-    public static async Task SendTapAsync(IConfiguration configuration, HttpRequest request, string email, string tap)
+    public static async Task SendTapAsync(IConfiguration configuration, HttpRequest request, string upn, string email, string tap)
     {
         var emailClient = new EmailClient(configuration.GetSection("AppSettings:EmailConnectionString").Value);
 
@@ -66,7 +66,8 @@ public class Invite
             
             <h2>Next steps</h2>
             <ol>
-                <li><a href='https://aka.ms/sspr'>Reset your password</a>. On the password reset page use the following access pass <code>{tap}</code></li>
+                <li><a href='https://aka.ms/sspr'>Reset your password</a>. On the password reset page use the following username <code>{upn}</code></li>
+                <li>You temporary access pass <code>{tap}</code></li>
                 <li>Go to <a href='https://www.microsoft365.com'>M365 portal</a> and upload a photo of yourself.</li>
                 <li>In <a href='https://myaccount.microsoft.com'>MyAccount</a>, issue yourself a VerifiedEmployee Verified ID credential.</li>
                 <li>Go to <a href='https://myapplications.microsoft.com'>MyApplications</a> to find applications to use.</li>

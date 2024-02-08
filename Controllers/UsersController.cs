@@ -197,6 +197,15 @@ public class UsersController : ControllerBase
 
             string session = Guid.NewGuid().ToString();
 
+            // Add email authentication method so users can reset their password
+            // https://learn.microsoft.com/graph/authenticationmethods-get-started?tabs=csharp
+            // var authMethodRequestBody = new EmailAuthenticationMethod
+            // {
+            //     EmailAddress = newUser.Email
+            // };
+
+            // await _graphServiceClient.Users[result!.Id].Authentication.EmailMethods.PostAsync(authMethodRequestBody);
+
             // Send invite email
             string link = await Invite.SendInviteAsync(_configuration, this.Request, result!.Id!, result!.DisplayName!, result!.Mail!, session);
 
@@ -351,7 +360,7 @@ public class UsersController : ControllerBase
             var tap = await _graphServiceClient.Users[oid].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
 
             // Send the TAP to the employee
-            await Invite.SendTapAsync(_configuration, this.Request, user.Result.Mail, tap.TemporaryAccessPass);
+            await Invite.SendTapAsync(_configuration, this.Request, user.Result.UserPrincipalName, user.Result.Mail, tap.TemporaryAccessPass);
 
             return Ok();
         }
@@ -436,7 +445,7 @@ public class UsersController : ControllerBase
             var tap = await graphClient.Users[userObjectID].Authentication.TemporaryAccessPassMethods.PostAsync(requestBody);
 
             // Don't wait for the email to be sent
-            await Invite.SendTapAsync(_configuration, Request, usersCache.Email, tap.TemporaryAccessPass);
+            await Invite.SendTapAsync(_configuration, Request, usersCache.UPN, usersCache.Email, tap.TemporaryAccessPass);
 
             // Update the cache that the process successfully completed
             usersCache.Status = UserStatus.Completed;
