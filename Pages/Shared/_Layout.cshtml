@@ -31,14 +31,17 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item px-2">
-                            <a class="nav-link text-light" asp-area="" asp-page="/users"><i class="bi bi-people-fill"
-                                    style="color: orange;"></i> Users</a>
-                        </li>
-                        <li class="nav-item px-2">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Onboarding"><i
-                                    class="bi bi-person-vcard" style="color: orange;"></i> Onboarding</a>
-                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item px-2">
+                                <a class="nav-link text-light" asp-area="" asp-page="/users"><i class="bi bi-people-fill"
+                                        style="color: orange;"></i> Users</a>
+                            </li>
+                        }
+                        @* <li class="nav-item px-2">
+                        <a class="nav-link text-light" asp-area="" asp-page="/Onboarding"><i
+                        class="bi bi-person-vcard" style="color: orange;"></i> Onboarding</a>
+                        </li> *@
                         <li class="nav-item px-2">
                             <a class="nav-link text-light" asp-area="" asp-page="/Help"><i class="bi bi-info-circle"
                                     style="color: orange;"></i> Help</a>
@@ -46,6 +49,10 @@
                         <li class="nav-item px-2">
                             <a class="nav-link text-light" asp-area="" asp-page="/Settings"><i class="bi bi-gear"
                                     style="color: orange;"></i> Settings</a>
+                        </li>
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-light" asp-area="" asp-page="/Privacy"><i class="bi bi bi-lock"
+                                    style="color: orange;"></i> Privacy</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

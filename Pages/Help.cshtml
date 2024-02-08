@@ -6,11 +6,11 @@
 
 <h1 class="py-2">Learn how to run this demo</h1>
 
-<h2 style="margin-top: 35px;">Manager flow</h2>
+<h2 style="margin-top: 35px;">Hiring manager flow</h2>
 
 <p style="margin-top: 15px;">
-    A manager Settings to this portal and selects the <a href="/users">users</a> for new employee onboarding.
-    The manager can select a user from a list, or create a new one. The following screenshot shows the users in the
+    A hiring manager first needs to <a href="/Settings">setup</a> their Microsoft Etnra ID tenant. Then from the menu, select the <a href="/users">users</a> link for new employee onboarding.
+    In the <b>Users</b> page, the manager can select a user from a list, or create a new one. The following screenshot shows the users in the
     Contoso directory.<br>
 </p>
 
@@ -28,18 +28,22 @@
 
 <img src="~/images/Settings/invite.png" class="img-fluid border" style="width: 400px;">
 
-<h2 style="margin-top: 35px;">User flow</h2>
+<h2 style="margin-top: 35px;">Empoyee (new hire) flow</h2>
 
-<ol>
-    <li>The new hires open the invite email sent to them, then select the link to the employee onboarding page and are
-        guided through a wizard-like experience.</li>
-    <li>New Hires are redirected to acquire a verified ID from the Identity verification partner (also referred to IDV.
-        To learn more about the identity verification partners: https://aka.ms/verifiedidisv</li>
-    <li>New Hires present the Verified ID acquired in Step 2</li>
-    <li>This live demo app receives the claims from identity verification partner, looks up the user account for the new hire and
-        performs the validation.</li>
-    <li>This live demo app executes the onboarding logic to locate the Microsoft Entra account of the user, and generate a temporary
-        access
-        pass which presents to the user and sent by email.</li>
-    <li>The new hires need to following the guidance how to reset their password.</li>
-</ol>
+<p style="margin-top: 15px;">
+    The new hire flow starts from and email sends to them. The email contains the relevant information to activate their account:
+    <ol style="margin-top: 15px;">
+        <li>The new hires opens the invite email sent to them, and select the link to the employee onboarding page. This page 
+            guides the new hire through a wizard-like experience.</li>
+        <li>New Hires are asked to acquire a verified ID from the Identity verification partner (also referred to IDV.
+            To learn more about the identity verification partners: https://aka.ms/verifiedidisv</li>
+        <li>After getting a verified ID, the new hire presents the Verified ID in the onboarding page</li>
+        <li>This live demo app receives the claims from identity verification partner, looks up the user account for the new hire and
+            performs the validation.</li>
+        <li>This live demo app executes the onboarding logic to locate the Microsoft Entra account of the user, and generate a temporary
+            access
+            pass which presents to the new hire which also sends by email.</li>
+        <li>The new hires need to following the guidance how to reset their password.</li>
+    </ol>
+</p>
+

@@ -1,8 +1,135 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacy policy";
 }
-<h1>@ViewData["Title"]</h1>
+<h1 class="py-3">@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row">
+    <div class="col-3">
+        <img src="~/images/Privacy.png" class="rounded" style="width: 100%;">
+    </div>
+    <div class="col">
+        <p>
+            Your privacy is important to us. This privacy statement explains the personal data Woodgrove live demo
+            application
+            collects
+            and processes, and for what purposes. This Woodgrove Verified ID demo application collects information about
+            the use
+            of
+            the demo and send it to Microsoft. Microsoft may use this information to provide services and improve our
+            products
+            and
+            services.
+        </p>
+        <p>
+            Our privacy statement is located at <a href="https://go.microsoft.com/fwlink/?LinkID=824704">Microsoft
+                Privacy Statement</a>. You can learn more about
+            data collection and use in the help documentation and our privacy statement. Your use of the demo operates
+            as your
+            consent to these practices.
+        </p>
+    </div>
+</div>
+
+
+<h3 style="margin-top: 70px; margin-bottom: 25px;">Information you provide</h3>
+<div class="row">
+    <div class="col-3">
+        <img src="~/images/Manager.png" class="rounded" style="width: 100%;">
+    </div>
+    <div class="col">
+        <p>
+            This <b>Woodgrove Portal</b> live demo application is a Multi-tenant app (a.k.a. <a
+                href="https://learn.microsoft.com/entra/identity/enterprise-apps/add-application-portal">Enterprise
+                application</a>).
+            It accepts sign-ins from any Microsoft Entra tenant after consenting to
+            use their account with <b>Woodgrove Portal</b> application.
+
+            The employee accounts the hiring manager creates and manages are stored in the hiring manager's Microsoft
+            Entra
+            ID
+            tenant. For example,
+            if the hiring manager signs-in with bob@contoso.com account, all the employee accounts will be created in
+            the
+            contoso.com tenant.
+        </p>
+
+
+        <p>
+            For the employee to get email notifications, the hiring manager provides the employee's email address.
+            The employee's email will be stored in a the application's cache and
+            will be persisted into the respective Microsoft Entra ID tenant.
+        </p>
+
+        <p>
+            To get a <b>TrueID</b> card, the employee provides some data directly that is stored in their wallet app
+            (Microsoft
+            Authenticator app) and it remains only in their wallet.
+        </p>
+
+    </div>
+</div>
+
+<h3 style="margin-top: 80px; margin-bottom: 15px;">Personal data</h3>
+<div class="row">
+    <div class="col-3">
+        <img src="~/images/PII-Data.png" class="rounded" style="width: 100%;">
+    </div>
+    <div class="col">
+        <p>
+            Personal data, also known as personal information or personally identifiable information (PII), is any
+            information related to an identifiable person.
+
+            The purpose of this live demo application is for illustration only. <b>You are NOT obligated to provide your
+                personal
+                information</b>, such as first name, last name, location etc. Make sure NOT to use any of your real
+            details that
+            can
+            reveal your identity.
+        </p>
+
+        <p>
+            The email address must be in the correct format. The hiring manager can use a temp email solution.
+            Also, the hiring manager can provide a fake email address. In
+            this
+            case,
+            the hiring manager will have to copy the <b>invite URL</b> address and share it with the employee.
+        </p>
+    </div>
+</div>
+
+
+<h3 style="margin-top: 70px; margin-bottom: 15px;">Collect telemetries</h3>
+<div class="row">
+    <div class="col-3">
+        <img src="~/images/telemetries.png" class="rounded" style="width: 100%;">
+    </div>
+    <div class="col">
+        <p>
+            This Woodgrove demo app uses the <a
+                href="https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview">Application
+                Insights</a> to
+            collect telemetries to determine when, where, and how users
+            interact with this live demo. Check out the <a
+                href="https://learn.microsoft.com/azure/app-service/monitor-app-service-reference">Monitoring App
+                Service data
+                reference</a> for detailed information on App Service
+            metrics and logs.
+
+            In addition to the basic Application Insights telemetry, Woodgrove live demo app collects the following
+            data:
+
+        <ul>
+            <li>The demo that you run, and the type of the activity.</li>
+            <li>Exceptions, or errors that occur in either in the app or REST APIs.</li>
+            <li>The referral that identifies the address of the web page, from which the page has been requested.</li>
+            <li>We don't store any personal data in Application Insights, including your IP address.</li>
+        </ul>
+
+
+        If you clone and run the demo in your own environment, you may turn off the telemetry by leaving the
+        ApplicationInsights:ConnectionString in the appsettings.json configuration file empty.
+        </p>
+    </div>
+</div>
