@@ -144,9 +144,9 @@ else
                     </div>
                 </div>
 
-                <div id="userAction-part" class="content fs-5" role="tabpanel" aria-labelledby="userAction-part-trigger">
+                <div id="userAction-part" class="content" role="tabpanel" aria-labelledby="userAction-part-trigger">
                     <h3>Share the TrueID card with us</h3>
-                    <p class="py-1">
+                    <p class="py-1 fs-4">
                         In the Microsoft Authenticator review the presentation request and share the TrueID card with us.
                     </p>
 
@@ -157,8 +157,7 @@ else
                     </div>
                 </div>
 
-                <div id="completed-part" class="content fs-3" role="tabpanel"
-                    aria-labelledby="completed-part-trigger">
+                <div id="completed-part" class="content fs-3" role="tabpanel" aria-labelledby="completed-part-trigger">
 
                     <h3>Activating your account</h3>
                     <p class="py-1">
@@ -179,7 +178,14 @@ else
                         <ol>
                             <li><a href='https://aka.ms/sspr' target="_blank" class="link">Reset your password</a>. On the
                                 password reset page use the
-                                following access pass <span style="background-color: #ebebeb;" id="tap"></span>
+                                following information:
+
+                                <ul>
+                                    <li><b>Email or Username:</b> <span style="background-color: #ebebeb;" id="upnValue"></span>
+                                    </li>
+                                    <li><b>Temporary access pass:</b> <span style="background-color: #ebebeb;"
+                                            id="tap"></span></li>
+                                </ul>
                             </li>
                             <li>Go to <a href='https://www.microsoft365.com' target="_blank" class="link">M365 portal</a>
                                 and upload a photo of yourself.
@@ -392,14 +398,14 @@ else
                         // Show the claims
                         var jsonPayload = JSON.parse(data.jsonPayload);
                         var html = `<table class="table table-hover">
-                                                                                                                    <thead>
-                                                                                                                    <tr>
-                                                                                                                        <th>Claim</th>
-                                                                                                                        <th>Value</th>
-                                                                                                                        <th>Type</th>
-                                                                                                                        <th>Issuer</th>
-                                                                                                                    </tr>
-                                                                                                                    </thead><tbody>`
+                                                                                                                            <thead>
+                                                                                                                            <tr>
+                                                                                                                                <th>Claim</th>
+                                                                                                                                <th>Value</th>
+                                                                                                                                <th>Type</th>
+                                                                                                                                <th>Issuer</th>
+                                                                                                                            </tr>
+                                                                                                                            </thead><tbody>`
 
                         if (jsonPayload && jsonPayload.verifiedCredentialsData && jsonPayload.verifiedCredentialsData.length > 0) {
 
@@ -472,6 +478,8 @@ else
                         $('#spinner').hide();
                         $('#preparing').hide();
                         $('#tap').text(result.tap);
+                        $('#upnValue').text(result.upn);
+                        
                     }
                 }).fail(function (response) {
                     console.log("TAP error")

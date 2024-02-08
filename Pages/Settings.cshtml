@@ -6,7 +6,20 @@
 
 <h1 class="py-2">Learn how to prepare your environment to run the demo</h1>
 
-<h2 style="margin-top: 35px;;">1. Configure Temporary Access Pass in Microsoft Entra ID</h2>
+<h2 style="margin-top: 35px;;">1. Configure Self-service password reset</h2>
+Microsoft Entra self-service password reset (SSPR) gives users the ability to change or reset their password, with no
+administrator or help desk involvement. For this demo after the new hire completes the onboarding process, they can set up their password themselves.
+
+ . Follow the guidance how to <a
+    href="https://learn.microsoft.com/entra/identity/authentication/howto-authentication-temporary-access-pass"
+    target="_blank">Enable users to unlock their account or reset passwords using Microsoft Entra self-service password reset</a>.
+
+<p style="margin-top: 15px;">
+    The following image shows how to configure Self-service password reset for all or selected users in the directory<br>
+    <img src="~/images/Settings/sspr.png" class="img-fluid border">
+</p>
+
+<h2 style="margin-top: 35px;;">2. Configure Temporary Access Pass</h2>
 A Temporary Access Pass is a time-limited passcode that can be configured for single use or multiple. Users can sign in
 with a Temporary Access Pass to onboard other authentication methods including passwordless methods such as Microsoft
 Authenticator, FIDO2 or Windows Hello for Business. Follow the guidance how to <a
@@ -19,7 +32,7 @@ Authenticator, FIDO2 or Windows Hello for Business. Follow the guidance how to <
     <img src="~/images/Settings/tap.png" class="img-fluid border">
 </p>
 
-<h2 style="margin-top: 35px;;">2. Assign Microsoft Entra roles</h2>
+<h2 style="margin-top: 35px;;">3. Assign Microsoft Entra admin roles</h2>
 
 For this demo, you as a manager create the new hire an account in your tenant. To add, delete or update users, you must
 be a User Administrator or Global Administrator role in your tenanat. Follow the guidance how to <a
@@ -27,9 +40,9 @@ be a User Administrator or Global Administrator role in your tenanat. Follow the
     target="_blank">Assign Microsoft Entra roles to users</a> and add
 Make sure you have the following pemrmissions:
 
-<ul>
+<ul style="margin-top: 10px;">
     <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#global-administrator"
-            target="_blank">Global Administrator</a>, or the following pemrmissions</li>
+            target="_blank">Global Administrator</a>, or all of the following pemrmissions:</li>
     <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#user-administrator"
             target="_blank">User Administrator</a></li>
     <li><a href="https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference#authentication-policy-administrator"
@@ -38,7 +51,7 @@ Make sure you have the following pemrmissions:
             target="_blank">Groups Administrator</a></li>
 </ul>
 
-<h2 style="margin-top: 35px;;">Admin Consent for Delegated Permissions</h2>
+<h2 style="margin-top: 35px;;">4. Admin Consent for Delegated Permissions</h2>
 This multi-tenant application requests delegated permissions that require your own tenant admin consent. The will
 receive an error message that
 says you are not unauthorized to consent to your app's permissions (unless you have the right pemrmissions). You are

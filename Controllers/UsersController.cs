@@ -443,7 +443,7 @@ public class UsersController : ControllerBase
             _cache.Set(usersCache.ID, usersCache.ToString(), DateTimeOffset.Now.AddHours(24));
 
             // Retrun the TAP
-            return Ok(new { tap = tap.TemporaryAccessPass });
+            return Ok(new { tap = tap.TemporaryAccessPass, upn =  usersCache.UPN });
         }
         catch (System.Exception ex)
         {
