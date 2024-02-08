@@ -12,7 +12,7 @@ namespace woodgrove_portal.Helpers;
 
 public class Invite
 {
-    public static async Task SendInviteAsync(IConfiguration configuration, HttpRequest request, string oid, string displayName, string email, string session)
+    public static async Task<string> SendInviteAsync(IConfiguration configuration, HttpRequest request, string oid, string displayName, string email, string session)
     {
         var emailClient = new EmailClient(configuration.GetSection("AppSettings:EmailConnectionString").Value);
 
@@ -33,6 +33,8 @@ public class Invite
             email,
             subject,
             htmlContent);
+        
+        return link;
     }
 
     private static string GenerateJwtToken(IConfiguration configuration, string oid, string session)

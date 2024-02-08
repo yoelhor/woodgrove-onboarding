@@ -10,7 +10,8 @@
 {
     <div class="container py-4 fs-4">
 
-        <i class="bi bi-info-square-fill" style="color: red;"></i> In this demo, you as a manager create the new hire an account in your tenant.
+        <i class="bi bi-info-square-fill" style="color: red;"></i> In this demo, you as a manager create the new hire an
+        account in your tenant.
         To add, delete or update users, you must be a User Administrator or Global Administrator role in your tenanat.
 
         <p class=" py-4">
@@ -67,7 +68,8 @@ else
         <span class="visually-hidden">Loading...</span>
     </div>
     <br>
-    <a href="#" id="nextPage" style="display: none;" class="link-primary  link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Load more...</a>
+    <a href="#" id="nextPage" style="display: none;"
+        class="link-primary  link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Load more...</a>
 
 
     <div class="modal" tabindex="-1" id="newUserModal">
@@ -266,6 +268,29 @@ else
                         <span class="spinner-border spinner-border-sm" id="deleteEmployeeSpinner" role="status"
                             aria-hidden="true"></span>
                         <span class="sr-only">Yes</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" id="inviteSentUserModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-envelope-check"></i> Invite sent</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    The invite has been successfully sent to the user. For the demo you can also copy the link and use it directly in your browser.
+                </div>
+                <div class="modal-footer">
+
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                    <button type="button" class="btn btn-primary" id="inviteCopyButton" onclick="copyInviteLink()">
+                        <i class="bi bi-copy"></i> Copy
                     </button>
                 </div>
             </div>
@@ -477,8 +502,11 @@ else
             });
         }
 
+        var inviteLink = '';
+
         function inviteEmployee() {
 
+            inviteLink = '';
             $('#inviteEmployeeSpinner').show();
             disableDetailsButtons(true);
 
@@ -486,7 +514,13 @@ else
                 url: "/api/users/invite?oid=" + $("#detailsId").val(),
                 success: function (result) {
 
+                    console.log(result);
+
+                    inviteLink = result.link;
                     disableDetailsButtons(false);
+
+                    userDetailsModal.hide();
+                    inviteSentUserModal.show();
 
                 }
             }).fail(function (response) {
@@ -539,7 +573,7 @@ else
             }
         }
 
-        var newUserModal, userDetailsModal, deleteUserModal;
+        var newUserModal, userDetailsModal, deleteUserModal, inviteSentUserModal;
 
         $(document).ready(function () {
 
@@ -554,6 +588,9 @@ else
 
             var deleteUserModalEl = document.getElementById('deleteUserModal')
             deleteUserModal = bootstrap.Modal.getOrCreateInstance(deleteUserModalEl);
+
+            var inviteSentUserModalEl = document.getElementById('inviteSentUserModal')
+            inviteSentUserModal = bootstrap.Modal.getOrCreateInstance(inviteSentUserModalEl);
 
             $('#newUserModal').on('show.bs.modal', function (e) {
                 // Hide the new employee spinner and activate the create button
@@ -587,6 +624,12 @@ else
                 $('#updateEmployeeAlert').hide();
             })
         })
+
+        function copyInviteLink() {
+
+            // Copy the link and close the window
+            navigator.clipboard.writeText(inviteLink);
+        }
 
     </script>
 

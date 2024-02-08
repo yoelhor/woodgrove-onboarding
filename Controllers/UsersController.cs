@@ -248,15 +248,17 @@ public class UsersController : ControllerBase
             {
                 string session = Guid.NewGuid().ToString();
                 // Send invite email
-                await Invite.SendInviteAsync(_configuration, this.Request, user.Id, user.DisplayName, user.Mail, session);
+                string link = await Invite.SendInviteAsync(_configuration, this.Request, user.Id, user.DisplayName, user.Mail, session);
 
                 // Add the user to the cache  
                 await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.GivenName + " " + user.Surname, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
+                // Return the result
+                return Ok(new { link = link });
             }
 
-            // Return the result
-            return Ok();
+            return BadRequest(new { error = "User not found" });
+
         }
         catch (System.Exception ex)
         {
