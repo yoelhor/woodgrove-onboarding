@@ -28,7 +28,7 @@ public class Invite
         var sender = "donotreply@woodgrovedemo.com";
 
         EmailSendOperation emailSendOperation = await emailClient.SendAsync(
-            Azure.WaitUntil.Completed,
+            Azure.WaitUntil.Started,
             sender,
             email,
             subject,
@@ -77,7 +77,7 @@ public class Invite
         var sender = "donotreply@woodgrovedemo.com";
 
         EmailSendOperation emailSendOperation = await emailClient.SendAsync(
-            Azure.WaitUntil.Completed,
+            Azure.WaitUntil.Started,
             sender,
             email,
             subject,
@@ -100,7 +100,7 @@ public class Invite
     //         </body></html>";
 
     //         EmailSendOperation emailSendOperation1 = await emailClient.SendAsync(
-    //             Azure.WaitUntil.Completed,
+    //             Azure.WaitUntil.Started,
     //             sender,
     //             usersCache.Email,
     //             subject,
@@ -125,7 +125,7 @@ public class Invite
     //             </body></html>";
 
     //         EmailSendOperation emailSendOperation2 = await emailClient.SendAsync(
-    //             Azure.WaitUntil.Completed,
+    //             Azure.WaitUntil.Started,
     //             sender,
     //             usersCache.ManagerEmail,
     //             subject,
