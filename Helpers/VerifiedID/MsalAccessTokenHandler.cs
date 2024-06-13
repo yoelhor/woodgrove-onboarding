@@ -6,11 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
-using WoodgroveDemo.Models;
+using Woodgrove.Onboarding.Models;
 using System.Drawing;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace WoodgroveDemo.Helpers
+namespace Woodgrove.Onboarding.Helpers
 {
     public class MsalAccessTokenHandler
     {

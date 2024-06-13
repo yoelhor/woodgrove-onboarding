@@ -2,8 +2,9 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Identity.VerifiedID;
 
-namespace WoodgroveDemo.Models;
+namespace Woodgrove.Onboarding.Models;
 
 public class ResponseToClient
 {

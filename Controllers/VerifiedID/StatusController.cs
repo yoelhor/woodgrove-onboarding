@@ -5,10 +5,11 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using WoodgroveDemo.Helpers;
-using WoodgroveDemo.Models;
+using Microsoft.Identity.VerifiedID;
+using Woodgrove.Onboarding.Helpers;
+using Woodgrove.Onboarding.Models;
 
-namespace WoodgroveDemo.Controllers;
+namespace Woodgrove.Onboarding.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -32,7 +33,7 @@ public class StatusController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("/api/status")]
-    public Status Get()
+    public UserFlowStatus Get()
     {
         // Get the current user's state ID from the user's session
         string state = this.HttpContext.Session.GetString("state");
@@ -40,11 +41,11 @@ public class StatusController : ControllerBase
         // If the state object was not found, return an error message
         if (string.IsNullOrEmpty(state))
         {
-            return new Status
+            return new UserFlowStatus
             {
                 RequestStateId = "",
                 RequestStatus = "error",
-                Message = Constants.ErrorMessages.STATE_ID_NOT_FOUND
+                Message = UserMessages.ERROR_STATE_ID_NOT_FOUND
             };
         }
 
@@ -53,7 +54,7 @@ public class StatusController : ControllerBase
         {
             try
             {
-                Status status = Status.Parse(requestState);
+                UserFlowStatus status = UserFlowStatus.Parse(requestState);
                 status.RequestStateId = state;
 
                 // Process the status of the request
@@ -63,53 +64,53 @@ public class StatusController : ControllerBase
             catch (Exception ex)
             {
                 AppInsightsHelper.TrackError(_telemetry, this.Request, ex);
-                return new Status
+                return new UserFlowStatus
                 {
                     RequestStateId = "",
                     RequestStatus = "error",
-                    Message = Constants.ErrorMessages.STATE_ID_CANNOT_DESERIALIZE + ex.Message
+                    Message = UserMessages.ERROR_STATE_ID_CANNOT_DESERIALIZE + ex.Message
                 };
             }
         }
         else
         {
             // If the request status object was not found in globle cach, return an error message
-            return new Status
+            return new UserFlowStatus
             {
                 RequestStateId = state,
                 RequestStatus = "error",
-                Message = Constants.ErrorMessages.STATE_OBJECT_NOT_FOUND
+                Message = UserMessages.ERROR_STATE_OBJECT_NOT_FOUND
             };
         }
     }
 
-    private Status HandleStatus(Status status)
+    private UserFlowStatus HandleStatus(UserFlowStatus status)
     {
         switch (status.RequestStatus)
         {
-            case Constants.RequestStatus.REQUEST_CREATED:
-                status.Message = Constants.RequestStatusMessage.REQUEST_CREATED;
+            case UserFlowStatusCodes.REQUEST_CREATED:
+                status.Message = UserMessages.REQUEST_CREATED;
                 break;
-            case Constants.RequestStatus.REQUEST_RETRIEVED:
-                status.Message = Constants.RequestStatusMessage.REQUEST_RETRIEVED;
+            case UserFlowStatusCodes.REQUEST_RETRIEVED:
+                status.Message = UserMessages.REQUEST_RETRIEVED;
                 break;
-            case Constants.RequestStatus.ISSUANCE_ERROR:
-                status.Message = Constants.RequestStatusMessage.ISSUANCE_ERROR;
+            case UserFlowStatusCodes.ISSUANCE_ERROR:
+                status.Message = UserMessages.ISSUANCE_ERROR;
                 break;
-            case Constants.RequestStatus.ISSUANCE_SUCCESSFUL:
-                status.Message = Constants.RequestStatusMessage.ISSUANCE_SUCCESSFUL;
+            case UserFlowStatusCodes.ISSUANCE_SUCCESSFUL:
+                status.Message = UserMessages.ISSUANCE_SUCCESSFUL;
                 break;
-            case Constants.RequestStatus.PRESENTATION_ERROR:
-                status.Message = Constants.RequestStatusMessage.ISSUANCE_ERROR;
+            case UserFlowStatusCodes.PRESENTATION_ERROR:
+                status.Message = UserMessages.ISSUANCE_ERROR;
                 break;
-            case Constants.RequestStatus.PRESENTATION_VERIFIED:
-                status.Message = Constants.RequestStatusMessage.PRESENTATION_VERIFIED;
+            case UserFlowStatusCodes.PRESENTATION_VERIFIED:
+                status.Message = UserMessages.PRESENTATION_VERIFIED;
                 break;
             default:
-                status.RequestStatus = Constants.RequestStatus.INVALID_REQUEST_STATUS;
+                status.RequestStatus = UserFlowStatusCodes.INVALID_REQUEST_STATUS;
 
                 // TBD add the request status
-                status.Message = Constants.RequestStatusMessage.INVALID_REQUEST_STATUS;
+                status.Message = UserMessages.INVALID_REQUEST_STATUS + " Received status: " + status.RequestStatus;
                 break;
         }
 

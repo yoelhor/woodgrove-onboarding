@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using WoodgroveDemo.Helpers;
-using WoodgroveDemo.Models;
+using Woodgrove.Onboarding.Helpers;
+using Woodgrove.Onboarding.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
-using Constants = WoodgroveDemo.Models.Constants;
 using Microsoft.Graph.Models;
-using Status = WoodgroveDemo.Models.Status;
-using woodgrove_portal.Helpers;
-using woodgrove_portal.Controllers;
+using Woodgrove.Onboarding.Helpers;
+using Woodgrove.Onboarding.Controllers;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
-using woodgrove_portal.Models;
+using Woodgrove.Onboarding.Models;
 using System.Threading;
 using System;
+using Microsoft.Identity.VerifiedID;
+using Microsoft.Identity.VerifiedID.Callback;
 
-namespace WoodgroveDemo.Controllers;
+namespace Woodgrove.Onboarding.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -51,9 +51,9 @@ public class CallbackController : ControllerBase
         // Local variables
         EventTelemetry eventTelemetry = new EventTelemetry("Callback");
         bool rc = false;
-        List<string> presentationStatus = new List<string>() { "request_retrieved", "presentation_verified", "presentation_error" };
-        List<string> issuanceStatus = new List<string>() { "request_retrieved", "issuance_successful", "issuance_error" };
-        List<string> selfieStatus = new List<string>() { "selfie_taken" };
+        List<string> presentationStatus = new List<string>() { UserFlowStatusCodes.REQUEST_RETRIEVED, UserFlowStatusCodes.PRESENTATION_VERIFIED, UserFlowStatusCodes.PRESENTATION_ERROR };
+        List<string> issuanceStatus = new List<string>() { UserFlowStatusCodes.REQUEST_RETRIEVED, UserFlowStatusCodes.ISSUANCE_SUCCESSFUL, UserFlowStatusCodes.ISSUANCE_ERROR };
+        List<string> selfieStatus = new List<string>() { UserFlowStatusCodes.SELFIE_TAKEN };
 
         string state = "abcd", flow = "", body = "";
 
@@ -65,27 +65,27 @@ public class CallbackController : ControllerBase
             _log.LogTrace("Reqeust body: " + body);
 
             // Parse the request body
-            CallbackEvent callback = CallbackEvent.Parse(body);
-            state = callback.state;
+            CallbackData callback = CallbackData.Parse(body);
+            state = callback.State;
 
             // This endpoint is called by Microsoft Entra Verified ID which passes an API key.
             // Validate that the API key is valid.
             this.Request.Headers.TryGetValue("api-key", out var apiKey);
             if (_configuration["VerifiedID:ApiKey"] != apiKey)
             {
-                return ErrorHandling(eventTelemetry, "Api-key wrong or missing", true, callback.state, callback.requestStatus);
+                return ErrorHandling(eventTelemetry, "Api-key wrong or missing", true, callback.State, callback.RequestStatus);
             }
 
             // Add telemetry to the application insights
-            eventTelemetry.Properties.Add("State", callback.state);
-            eventTelemetry.Properties.Add("RequestId", callback.requestId);
-            eventTelemetry.Properties.Add("RequestStatus", callback.requestStatus);
+            eventTelemetry.Properties.Add("State", callback.State);
+            eventTelemetry.Properties.Add("RequestId", callback.RequestId);
+            eventTelemetry.Properties.Add("RequestStatus", callback.RequestStatus);
 
             // Get the current status from the cache and add the flow telemetry
-            Status currentStatus = new Status();
-            if (_cache.TryGetValue(callback.state, out string requestState))
+            UserFlowStatus currentStatus = new UserFlowStatus();
+            if (_cache.TryGetValue(callback.State, out string requestState))
             {
-                currentStatus = Status.Parse(requestState);
+                currentStatus = UserFlowStatus.Parse(requestState);
                 flow = currentStatus.Flow;
                 eventTelemetry.Properties.Add("Type", "Callback");
                 eventTelemetry.Properties.Add("Scenario", currentStatus.Scenario);
@@ -96,16 +96,16 @@ public class CallbackController : ControllerBase
 
             // Handle issuance, presentation adn selfie requests
             if (
-                (presentationStatus.Contains(callback.requestStatus))
-                || (issuanceStatus.Contains(callback.requestStatus))
-                || selfieStatus.Contains(callback.requestStatus))
+                (presentationStatus.Contains(callback.RequestStatus))
+                || (issuanceStatus.Contains(callback.RequestStatus))
+                || selfieStatus.Contains(callback.RequestStatus))
             {
 
                 // Set the request status object into the global cache using the state ID key
-                Status status = new Status()
+                UserFlowStatus status = new UserFlowStatus()
                 {
-                    RequestStateId = callback.state,
-                    RequestStatus = callback.requestStatus,
+                    RequestStateId = callback.State,
+                    RequestStatus = callback.RequestStatus,
                     StartTime = currentStatus.StartTime,
                     JsonPayload = body,
                     Scenario = currentStatus.Scenario,
@@ -114,18 +114,18 @@ public class CallbackController : ControllerBase
 
                 // Track the execution history
                 status.History = currentStatus.History;
-                status.AddHistory(callback.requestStatus, currentStatus.CalculateExecutionTime(), body);
+                status.AddHistory(callback.RequestStatus, currentStatus.CalculateExecutionTime(), body);
 
                 // Get the user's cache object
                 UsersCache usersCache = null;
-                if (_cache.TryGetValue(callback.state.Split("|")[0], out string cacheValue))
+                if (_cache.TryGetValue(callback.State.Split("|")[0], out string cacheValue))
                 {
                     usersCache = UsersCache.Parse(cacheValue);
                 }
 
                 // Add the indexed claim value to search and revoke the credential
                 // Note, this code is relevant only to the gift card demo
-                if (callback.requestStatus == Constants.RequestStatus.PRESENTATION_VERIFIED && usersCache != null)
+                if (callback.RequestStatus == UserFlowStatusCodes.PRESENTATION_VERIFIED && usersCache != null)
                 {
                     usersCache.Status = UserStatus.Verified;
                     usersCache.StatusTime = DateTime.UtcNow;
@@ -134,10 +134,10 @@ public class CallbackController : ControllerBase
                 }
 
                 // Add the status object to the ceche
-                _cache.Set(callback.state, status.ToString(), DateTimeOffset.Now.AddMinutes(Constants.AppSettings.CACHE_EXPIRES_IN_MINUTES));
+                _cache.Set(callback.State, status.ToString(), DateTimeOffset.Now.AddMinutes(Settings.CACHE_EXPIRES_IN_MINUTES));
 
                 // Add the error message to the telemetry
-                if (callback.requestStatus.Contains("_error"))
+                if (callback.RequestStatus.Contains("_error"))
                 {
                     this.TrackError(eventTelemetry, body, false);
                 }
@@ -148,12 +148,12 @@ public class CallbackController : ControllerBase
             }
             else
             {
-                return ErrorHandling(eventTelemetry, $"Unknown request status '{callback.requestStatus}'", false, callback.state, callback.requestStatus);
+                return ErrorHandling(eventTelemetry, $"Unknown request status '{callback.RequestStatus}'", false, callback.State, callback.RequestStatus);
             }
 
             if (!rc)
             {
-                return ErrorHandling(eventTelemetry, body, false, callback.state, callback.requestStatus);
+                return ErrorHandling(eventTelemetry, body, false, callback.State, callback.RequestStatus);
             }
 
             return new OkResult();
@@ -171,7 +171,7 @@ public class CallbackController : ControllerBase
         TrackError(eventTelemetry, errorMessage, internl);
 
         // Set the request status object into the global cache using the state ID key
-        Status status = new Status()
+        UserFlowStatus status = new UserFlowStatus()
         {
             RequestStateId = state,
             RequestStatus = requestStatus,
@@ -179,7 +179,7 @@ public class CallbackController : ControllerBase
         };
 
         // Add the error to the cache, so we can show it in the UI
-        _cache.Set(state, status.ToString(), DateTimeOffset.Now.AddMinutes(Constants.AppSettings.CACHE_EXPIRES_IN_MINUTES));
+        _cache.Set(state, status.ToString(), DateTimeOffset.Now.AddMinutes(Settings.CACHE_EXPIRES_IN_MINUTES));
 
         // Return bad reqeust HTTP error message to the caller
         return BadRequest(new { error = "400", error_description = errorMessage });
@@ -197,9 +197,9 @@ public class CallbackController : ControllerBase
 
         // Check the type of the error
         if (internl)
-            ErrorName = Constants.ErrorMessages.API_CALLBACK_INTERANL_ERROR;
+            ErrorName = UserMessages.ERROR_API_CALLBACK_INTERANL_ERROR;
         else
-            ErrorName = Constants.ErrorMessages.API_CALLBACK_ENTRA_ERROR;
+            ErrorName = UserMessages.ERROR_API_CALLBACK_ENTRA_ERROR;
 
         // Create an exception telemetry with the error name
         ExceptionTelemetry expTelemetry = new ExceptionTelemetry(new Exception(ErrorName));

@@ -1,4 +1,4 @@
-namespace woodgrove_portal.Controllers;
+namespace Woodgrove.Onboarding.Models;
 
 public class WgUsers
 {

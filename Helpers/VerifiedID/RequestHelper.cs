@@ -1,11 +1,8 @@
+using Microsoft.Identity.VerifiedID;
+using Microsoft.Identity.VerifiedID.Presentation;
+using Woodgrove.Onboarding.Models;
 
-using System.Net;
-using System.Security.Cryptography;
-using Microsoft.Extensions.Caching.Memory;
-using WoodgroveDemo.Models;
-using WoodgroveDemo.Models.Presentation;
-
-namespace WoodgroveDemo.Helpers;
+namespace Woodgrove.Onboarding.Helpers;
 
 public class RequestHelper
 {
@@ -40,25 +37,25 @@ public class RequestHelper
     {
         PresentationRequest request = new PresentationRequest()
         {
-            includeQRCode = settings.UX.IncludeQRCode,
-            authority = settings.EntraID.DidAuthority,
-            registration = new Models.Presentation.Registration()
+            IncludeQRCode = settings.UX.IncludeQRCode,
+            Authority = settings.EntraID.DidAuthority,
+            Registration = new Microsoft.Identity.VerifiedID.Presentation.RequestRegistration()
             {
-                clientName = settings.UX.ClientName,
-                purpose = settings.UX.Purpose
+                ClientName = settings.UX.ClientName,
+                Purpose = settings.UX.Purpose
             },
-            callback = new Models.Presentation.Callback()
+            Callback = new CallbackDefinition()
             {
-                url = settings.Api.URL(httpRequest),
-                state = state + "|" + Guid.NewGuid().ToString(),
-                headers = new Dictionary<string, string>() { { "api-key", settings.Api.ApiKey } }
+                Url = settings.Api.URL(httpRequest),
+                State = state + "|" + Guid.NewGuid().ToString(),
+                Headers = new Dictionary<string, string>() { { "api-key", settings.Api.ApiKey } }
             },
-            includeReceipt = settings.UX.IncludeReceipt,
-            requestedCredentials = new List<RequestedCredential>(),
+            IncludeReceipt = settings.UX.IncludeReceipt,
+            RequestedCredentials = new List<RequestedCredential>(),
         };
-        if ("" == request.registration.purpose)
+        if ("" == request.Registration.Purpose)
         {
-            request.registration.purpose = null;
+            request.Registration.Purpose = null;
         }
 
         List<string> okIssuers = new List<string>(settings.EntraID.AcceptedIssuers.Split(","));
@@ -75,16 +72,16 @@ public class RequestHelper
                     bool allowRevoked = false,
                     bool validateLinkedDomain = true)
     {
-        request.requestedCredentials.Add(new RequestedCredential()
+        request.RequestedCredentials.Add(new RequestedCredential()
         {
-            type = credentialType,
-            acceptedIssuers = (null == acceptedIssuers ? new List<string>() : acceptedIssuers),
-            configuration = new Configuration()
+            Type = credentialType,
+            AcceptedIssuers = (null == acceptedIssuers ? new List<string>() : acceptedIssuers),
+            Configuration = new Configuration()
             {
-                validation = new Validation()
+                Validation = new Validation()
                 {
-                    allowRevoked = allowRevoked,
-                    validateLinkedDomain = validateLinkedDomain
+                    AllowRevoked = allowRevoked,
+                    ValidateLinkedDomain = validateLinkedDomain
                 }
             }
         });

@@ -6,19 +6,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using WoodgroveDemo.Helpers;
-using WoodgroveDemo.Models;
-using Microsoft.Extensions.Logging;
-using WoodgroveDemo.Models.Presentation;
+using Woodgrove.Onboarding.Helpers;
+using Woodgrove.Onboarding.Models;
 using System.Net.Http.Headers;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using woodgrove_portal.Controllers;
-using woodgrove_portal.Models;
-using woodgrove_portal.Pages;
+using Woodgrove.Onboarding.Controllers;
+using Woodgrove.Onboarding.Pages;
+using Microsoft.Identity.VerifiedID.Presentation;
+using Microsoft.Identity.VerifiedID;
 
-namespace WoodgroveDemo.Controllers.IdTokenHint;
+namespace Woodgrove.Onboarding.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -52,7 +51,7 @@ public class PresentController : ControllerBase
         this.HttpContext.Session.Clear();
 
         // Initiate the status object
-        Status status = new Status("IdTokenHint", "Present");
+        UserFlowStatus status = new UserFlowStatus("IdTokenHint", "Present");
         UsersCache usersCache = null;
 
         try
@@ -91,25 +90,25 @@ public class PresentController : ControllerBase
                 PresentationResponse presentationResponse = PresentationResponse.Parse(_Response.ResponseBody);
                 _Response.ResponseBody = presentationResponse.ToHtml();
 
-                _Response.QrCodeUrl = presentationResponse.url;
+                _Response.QrCodeUrl = presentationResponse.URL;
 
                 // Add the state ID to the user's session object 
-                this.HttpContext.Session.SetString("state", request.callback.state);
+                this.HttpContext.Session.SetString("state", request.Callback.State);
 
                 // Add the global cache with the request status
-                status.RequestStateId = request.callback.state;
-                status.RequestStatus = Constants.RequestStatus.REQUEST_CREATED;
+                status.RequestStateId = request.Callback.State;
+                status.RequestStatus = UserFlowStatusCodes.REQUEST_CREATED;
                 status.AddHistory(status.RequestStatus, status.CalculateExecutionTime());
 
                 // Send telemetry from this web app to Application Insights.
                 AppInsightsHelper.TrackApi(_Telemetry, this.Request, status);
 
                 // Add the status object to the cache
-                _Cache.Set(request.callback.state, status.ToString(), DateTimeOffset.Now.AddMinutes(Constants.AppSettings.CACHE_EXPIRES_IN_MINUTES));
+                _Cache.Set(request.Callback.State, status.ToString(), DateTimeOffset.Now.AddMinutes(Settings.CACHE_EXPIRES_IN_MINUTES));
             }
             else
             {
-                AppInsightsHelper.TrackError(_Telemetry, this.Request, Constants.ErrorMessages.API_ERROR, _Response.ResponseBody);
+                AppInsightsHelper.TrackError(_Telemetry, this.Request, UserMessages.ERROR_API_ERROR, _Response.ResponseBody);
                 _Response.ErrorMessage = _Response.ResponseBody;
                 _Response.ErrorUserMessage = ResponseError.Parse(_Response.ResponseBody).GetUserMessage();
             }

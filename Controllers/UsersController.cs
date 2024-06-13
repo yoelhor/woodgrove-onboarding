@@ -14,11 +14,10 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using woodgrove_portal.Helpers;
-using woodgrove_portal.Models;
-using WoodgroveDemo.Helpers;
+using Woodgrove.Onboarding.Helpers;
+using Woodgrove.Onboarding.Models;
 
-namespace woodgrove_portal.Controllers;
+namespace Woodgrove.Onboarding.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -210,7 +209,7 @@ public class UsersController : ControllerBase
             string link = await Invite.SendInviteAsync(_configuration, this.Request, result!.Id!, result!.DisplayName!, result!.Mail!, session);
 
             // Add the user to the cache  
-            await AddOrUpdateCacheAsync(result!.Id!, result!.UserPrincipalName, result!.DisplayName!, newUser.Email, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
+            await AddOrUpdateCacheAsync(result!.Id!, result!.UserPrincipalName, result!.DisplayName!, result!.GivenName!, result!.Surname!, newUser.Email, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
             // Return the result
             return Ok(new { link = link, email = newUser.Email });
@@ -221,7 +220,9 @@ public class UsersController : ControllerBase
         }
     }
 
-    private async Task AddOrUpdateCacheAsync(string oid, string upn, string displayName, string employeeEmail, string managerID, string status, string session)
+    private async Task AddOrUpdateCacheAsync(string oid, string upn,
+            string displayName, string givenName, string surname,
+            string employeeEmail, string managerID, string status, string session)
     {
         // Get the manager email address
         var manager = await _graphServiceClient.Users[managerID].GetAsync();
@@ -238,6 +239,8 @@ public class UsersController : ControllerBase
             UPN = upn,
             Session = session,
             DisplayName = displayName,
+            GivenName = givenName,
+            Surname = surname,
             Email = employeeEmail,
             ManagerEmail = managerEmail,
             Status = status,
@@ -261,7 +264,7 @@ public class UsersController : ControllerBase
                 string link = await Invite.SendInviteAsync(_configuration, this.Request, user.Id, user.DisplayName, user.Mail, session);
 
                 // Add the user to the cache  
-                await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.DisplayName, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
+                await AddOrUpdateCacheAsync(user!.Id!, user!.UserPrincipalName, user.DisplayName, user.GivenName, user.Surname, user.Mail, this.HttpContext.User.GetObjectId(), UserStatus.Invited, session);
 
                 // Return the result
                 return Ok(new { link = link, email = user.Mail });
@@ -386,10 +389,10 @@ public class UsersController : ControllerBase
             }
 
             // Try to read the request status object from the global cache using the state ID key
-            WoodgroveDemo.Models.Status status = null;
+            UserFlowStatus status = null;
             if (_cache.TryGetValue(state, out string requestState))
             {
-                status = WoodgroveDemo.Models.Status.Parse(requestState);
+                status = UserFlowStatus.Parse(requestState);
             }
             else
             {

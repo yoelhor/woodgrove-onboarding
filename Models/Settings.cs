@@ -1,14 +1,17 @@
 
-using WoodgroveDemo.Helpers;
+using Microsoft.Identity.VerifiedID;
+using Woodgrove.Onboarding.Helpers;
 
-namespace WoodgroveDemo.Models;
+namespace Woodgrove.Onboarding.Models;
 public class Settings
 {
+    public const int CACHE_EXPIRES_IN_MINUTES = 10;
+
     public Settings(IConfiguration configuration)
     {
         CredentialType = configuration.GetSection($"VerifiedID:CredentialType").Value!;
 
-        RequestUrl = configuration.GetSection("VerifiedID:ApiEndpoint").Value! + Constants.Endpoints.CreatePresentationRequest;
+        RequestUrl = configuration.GetSection("VerifiedID:ApiEndpoint").Value! + Endpoints.CreatePresentationRequest;
         UseCache = configuration.GetValue("VerifiedID:UseCache", true);
 
         // Read the Microsoft Entra ID settings from the app settings 

@@ -1,5 +1,5 @@
 ﻿@page
-@model woodgrove_portal.Pages.OnboardingModel
+@model Woodgrove.Onboarding.Pages.OnboardingModel
 @{
     ViewData["Title"] = "Employee onboarding";
 }
@@ -103,7 +103,7 @@ else
                         <div class="col">
 
                             <i class="bi bi-question-circle-fill fs-3" style="color: green;"></i> Do not have a TrueID
-                            card? click <a href="https://trueidentityinc.azurewebsites.net/" class="link-success">here</a>
+                            card? click <a href="https://trueidentityinc.azurewebsites.net/?firstName=@Model.GivenName&lastName=@Model.Surname" class="link-success" target="_blank">here</a>
                             to get one.
 
                         </div>
@@ -176,8 +176,8 @@ else
 
                         Your account is ready. Please follow these steps:
                         <ol>
-                            <li><a href='https://aka.ms/sspr' target="_blank" class="link">Reset your password</a>. On the
-                                password reset page use the
+                            <li>Go to <a href='https://mysignins.microsoft.com/security-info/password/change' target="_blank" class="link">
+                            My security info</a> and change your password. On the sign-in page use the
                                 following information:
 
                                 <ul>

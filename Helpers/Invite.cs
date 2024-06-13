@@ -4,10 +4,10 @@ using System.Security.Claims;
 using Azure.Communication.Email;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using woodgrove_portal.Controllers;
-using WoodgroveDemo.Helpers;
+using Woodgrove.Onboarding.Controllers;
+using Woodgrove.Onboarding.Helpers;
 
-namespace woodgrove_portal.Helpers;
+namespace Woodgrove.Onboarding.Helpers;
 
 
 public class Invite
@@ -25,7 +25,8 @@ public class Invite
                 <p>Dear {displayName}, to create your account, we need you to identify yourself. 
                     Please use <a href='{link}'>this link</a> and follow the guidance.</p>
             </body></html>";
-        var sender = "donotreply@woodgrovedemo.com";
+        
+        var sender = configuration.GetSection("AppSettings:EmailSender").Value;
 
         EmailSendOperation emailSendOperation = await emailClient.SendAsync(
             Azure.WaitUntil.Started,
@@ -74,7 +75,7 @@ public class Invite
             <ol>
             </body></html>";
 
-        var sender = "donotreply@woodgrovedemo.com";
+        var sender = configuration.GetSection("AppSettings:EmailSender").Value;
 
         EmailSendOperation emailSendOperation = await emailClient.SendAsync(
             Azure.WaitUntil.Started,
@@ -87,7 +88,7 @@ public class Invite
     // public static async Task SendSuccessfullyVerifiedAsync(IConfiguration configuration, HttpRequest request, UsersCache usersCache, IMemoryCache cache)
     // {
     //     var emailClient = new EmailClient(configuration.GetSection("AppSettings:EmailConnectionString").Value);
-    //     var sender = "donotreply@woodgrovedemo.com";
+    //     var sender = configuration.GetSection("AppSettings:EmailSender").Value;;
 
     //     try
     //     {

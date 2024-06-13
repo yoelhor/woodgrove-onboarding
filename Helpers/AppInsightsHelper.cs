@@ -1,19 +1,13 @@
-
-using System.Net;
-using System.Security.Cryptography;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Caching.Memory;
-using WoodgroveDemo.Models;
-using WoodgroveDemo.Models.Presentation;
+using Woodgrove.Onboarding.Models;
 
-namespace WoodgroveDemo.Helpers;
+namespace Woodgrove.Onboarding.Helpers;
 
 public class AppInsightsHelper
 {
 
-    public static void TrackApi(TelemetryClient Telemetry, HttpRequest request, Status status)
+    public static void TrackApi(TelemetryClient Telemetry, HttpRequest request, UserFlowStatus status)
     {
 
         string[] parts = request.Path.Value.Split("/");

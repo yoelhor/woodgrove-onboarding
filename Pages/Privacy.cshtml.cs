@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace woodgrove_portal.Pages;
+namespace Woodgrove.Onboarding.Pages;
 
 public class PrivacyModel : PageModel
 {

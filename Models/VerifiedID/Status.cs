@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace WoodgroveDemo.Models
+namespace Woodgrove.Onboarding.Models
 {
     public class StatusCallbacks
     {
@@ -17,7 +17,7 @@ namespace WoodgroveDemo.Models
         }
     }
 
-    public class Status
+    public class UserFlowStatus
     {
         public string RequestStateId { get; set; }
         public string RequestStatus { get; set; }
@@ -30,13 +30,13 @@ namespace WoodgroveDemo.Models
         public DateTime StartTime { get; set; }
         public List<StatusCallbacks> History { get; set; } = new List<StatusCallbacks>();
 
-        public Status(string scenario, string flow) : this()
+        public UserFlowStatus(string scenario, string flow) : this()
         {
             this.Scenario = scenario;
             this.Flow = flow;
         }
 
-        public Status()
+        public UserFlowStatus()
         {
             StartTime = DateTime.Now;
             History.Add(new StatusCallbacks("Started", "00:00:00", ""));
@@ -57,9 +57,9 @@ namespace WoodgroveDemo.Models
         /// </summary>
         /// <param name="JsonString">The JSON string to be loaded</param>
         /// <returns></returns>
-        public static Status Parse(string JsonString)
+        public static UserFlowStatus Parse(string JsonString)
         {
-            return JsonSerializer.Deserialize<Status>(JsonString);
+            return JsonSerializer.Deserialize<UserFlowStatus>(JsonString);
         }
 
         public string CalculateExecutionTime()

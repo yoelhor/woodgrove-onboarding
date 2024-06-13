@@ -1,13 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace woodgrove_portal.Controllers;
+namespace Woodgrove.Onboarding.Models;
 
 public class UsersCache
 {
     public string ID { get; set; }
     public string UPN { get; set; }
     public string DisplayName { get; set; }
+    public string GivenName { get; set; }
+    public string Surname { get; set; }
     public string Email { get; set; }
     public string ManagerEmail { get; set; }
     public string Status { get; set; }

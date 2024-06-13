@@ -3,16 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using woodgrove_portal.Controllers;
-using woodgrove_portal.Models;
-using WoodgroveDemo.Helpers;
+using Woodgrove.Onboarding.Controllers;
+using Woodgrove.Onboarding.Models;
+using Woodgrove.Onboarding.Helpers;
 
-namespace woodgrove_portal.Pages
+namespace Woodgrove.Onboarding.Pages
 {
     public class OnboardingModel : PageModel
     {
         public string Error { get; set; }
         public string DisplayName { get; set; }
+        public string GivenName { get; set; }
+        public string Surname { get; set; }
         private IMemoryCache _Cache;
         protected readonly IConfiguration _Configuration;
 
@@ -29,6 +31,8 @@ namespace woodgrove_portal.Pages
             {
                 UsersCache usersCache = TokenValidation(_Configuration, token, _Cache);
                 DisplayName = usersCache.DisplayName;
+                GivenName = usersCache.GivenName;
+                Surname = usersCache.Surname;
             }
             catch (Exception ex)
             {
@@ -62,7 +66,7 @@ namespace woodgrove_portal.Pages
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var oid = jwtToken.Claims.First(x => x.Type == "id").Value;
                 var session = jwtToken.Claims.First(x => x.Type == "session").Value;
-                
+
 
 
                 // return user id from JWT token if validation successful

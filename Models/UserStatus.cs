@@ -1,4 +1,4 @@
-namespace woodgrove_portal.Models;
+namespace Woodgrove.Onboarding.Models;
 
 public class UserStatus
 {

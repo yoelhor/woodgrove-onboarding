@@ -3,9 +3,10 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
-using woodgrove_portal.Controllers;
+using Woodgrove.Onboarding.Controllers;
+using Woodgrove.Onboarding.Models;
 
-namespace woodgrove_portal.Pages
+namespace Woodgrove.Onboarding.Pages
 {
 
     public class CacheModel : PageModel
