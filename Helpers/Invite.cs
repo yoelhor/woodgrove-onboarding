@@ -57,7 +57,7 @@ public class Invite
     {
         var emailClient = new EmailClient(configuration.GetSection("AppSettings:EmailConnectionString").Value);
 
-        var subject = "Welcome new employee";
+        var subject = "Your Woodgrove account";
         var link = request.Scheme + "://" + request.Host + "/onboarding";
         var htmlContent = @$"<html><body>
             <h1>Welcome aboard</h1>
@@ -67,7 +67,8 @@ public class Invite
             
             <h2>Next steps</h2>
             <ol>
-                <li><a href='https://aka.ms/sspr'>Reset your password</a>. On the password reset page use the following username <code>{upn}</code></li>
+                <li>Go to <a href='https://mysignins.microsoft.com/security-info'>My security info</a> and set up your sign-in credentials.
+                 On the sign-in page enter the following username <code>{upn}</code></li>
                 <li>You temporary access pass <code>{tap}</code></li>
                 <li>Go to <a href='https://www.microsoft365.com'>M365 portal</a> and upload a photo of yourself.</li>
                 <li>In <a href='https://myaccount.microsoft.com'>MyAccount</a>, issue yourself a VerifiedEmployee Verified ID credential.</li>
